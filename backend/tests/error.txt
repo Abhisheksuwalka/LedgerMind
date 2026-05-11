@@ -1,0 +1,803 @@
+(.venv) abhisheksuwalka@MacBook-Air-5 backend % source .venv/bin/activate 
+pip install -r requirements.txt      
+Collecting fastapi==0.111.0 (from -r requirements.txt (line 1))
+  Using cached fastapi-0.111.0-py3-none-any.whl.metadata (25 kB)
+Collecting uvicorn==0.29.0 (from uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Using cached uvicorn-0.29.0-py3-none-any.whl.metadata (6.3 kB)
+Collecting websockets==12.0 (from -r requirements.txt (line 3))
+  Using cached websockets-12.0-py3-none-any.whl.metadata (6.6 kB)
+Collecting python-multipart==0.0.9 (from -r requirements.txt (line 4))
+  Using cached python_multipart-0.0.9-py3-none-any.whl.metadata (2.5 kB)
+Collecting sqlalchemy==2.0.29 (from sqlalchemy[asyncio]==2.0.29->-r requirements.txt (line 7))
+  Using cached SQLAlchemy-2.0.29-py3-none-any.whl.metadata (9.6 kB)
+Collecting asyncpg==0.29.0 (from -r requirements.txt (line 8))
+  Using cached asyncpg-0.29.0.tar.gz (820 kB)
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... done
+  Preparing metadata (pyproject.toml) ... done
+Collecting alembic==1.13.1 (from -r requirements.txt (line 9))
+  Using cached alembic-1.13.1-py3-none-any.whl.metadata (7.4 kB)
+Collecting redis==5.0.3 (from -r requirements.txt (line 12))
+  Using cached redis-5.0.3-py3-none-any.whl.metadata (9.3 kB)
+Collecting celery==5.3.6 (from -r requirements.txt (line 13))
+  Using cached celery-5.3.6-py3-none-any.whl.metadata (21 kB)
+Collecting anthropic>=0.40.0 (from -r requirements.txt (line 17))
+  Using cached anthropic-0.101.0-py3-none-any.whl.metadata (3.2 kB)
+Collecting langgraph==0.1.19 (from -r requirements.txt (line 18))
+  Using cached langgraph-0.1.19-py3-none-any.whl.metadata (13 kB)
+Collecting langchain-core==0.2.43 (from -r requirements.txt (line 19))
+  Using cached langchain_core-0.2.43-py3-none-any.whl.metadata (6.2 kB)
+Collecting groq>=0.11.0 (from -r requirements.txt (line 22))
+  Using cached groq-1.2.0-py3-none-any.whl.metadata (16 kB)
+Collecting google-generativeai>=0.8.0 (from -r requirements.txt (line 23))
+  Using cached google_generativeai-0.8.6-py3-none-any.whl.metadata (3.9 kB)
+Collecting pandas==2.2.2 (from -r requirements.txt (line 26))
+  Using cached pandas-2.2.2-cp314-cp314-macosx_26_0_x86_64.whl
+Collecting numpy==1.26.4 (from -r requirements.txt (line 27))
+  Using cached numpy-1.26.4-cp314-cp314-macosx_26_0_x86_64.whl
+Collecting sendgrid==6.11.0 (from -r requirements.txt (line 31))
+  Using cached sendgrid-6.11.0-py3-none-any.whl.metadata (11 kB)
+Collecting pydantic==2.7.4 (from -r requirements.txt (line 34))
+  Using cached pydantic-2.7.4-py3-none-any.whl.metadata (109 kB)
+Collecting pydantic-settings==2.2.1 (from -r requirements.txt (line 35))
+  Using cached pydantic_settings-2.2.1-py3-none-any.whl.metadata (3.1 kB)
+Collecting python-dotenv==1.0.1 (from -r requirements.txt (line 36))
+  Using cached python_dotenv-1.0.1-py3-none-any.whl.metadata (23 kB)
+Collecting httpx==0.27.0 (from -r requirements.txt (line 37))
+  Using cached httpx-0.27.0-py3-none-any.whl.metadata (7.2 kB)
+Collecting requests==2.32.3 (from -r requirements.txt (line 38))
+  Using cached requests-2.32.3-py3-none-any.whl.metadata (4.6 kB)
+Collecting pytest==8.2.0 (from -r requirements.txt (line 41))
+  Using cached pytest-8.2.0-py3-none-any.whl.metadata (7.5 kB)
+Collecting pytest-asyncio==0.23.6 (from -r requirements.txt (line 42))
+  Using cached pytest_asyncio-0.23.6-py3-none-any.whl.metadata (3.9 kB)
+Collecting starlette<0.38.0,>=0.37.2 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached starlette-0.37.2-py3-none-any.whl.metadata (5.9 kB)
+Collecting typing-extensions>=4.8.0 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting fastapi-cli>=0.0.2 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached fastapi_cli-0.0.24-py3-none-any.whl.metadata (6.4 kB)
+Collecting jinja2>=2.11.2 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting ujson!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0,>=4.0.1 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached ujson-5.12.1-cp314-cp314-macosx_10_15_x86_64.whl.metadata (9.6 kB)
+Collecting orjson>=3.2.1 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached orjson-3.11.9-cp314-cp314-macosx_10_15_x86_64.macosx_11_0_arm64.macosx_10_15_universal2.whl.metadata (41 kB)
+Collecting email_validator>=2.0.0 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached email_validator-2.3.0-py3-none-any.whl.metadata (26 kB)
+Collecting annotated-types>=0.4.0 (from pydantic==2.7.4->-r requirements.txt (line 34))
+  Using cached annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.18.4 (from pydantic==2.7.4->-r requirements.txt (line 34))
+  Using cached pydantic_core-2.18.4.tar.gz (385 kB)
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... done
+  Installing backend dependencies ... done
+  Preparing metadata (pyproject.toml) ... done
+Collecting click>=7.0 (from uvicorn==0.29.0->uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Using cached click-8.3.3-py3-none-any.whl.metadata (2.6 kB)
+Collecting h11>=0.8 (from uvicorn==0.29.0->uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Using cached h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting greenlet!=0.4.17 (from sqlalchemy==2.0.29->sqlalchemy[asyncio]==2.0.29->-r requirements.txt (line 7))
+  Using cached greenlet-3.5.0-cp314-cp314-macosx_11_0_universal2.whl.metadata (3.7 kB)
+Collecting Mako (from alembic==1.13.1->-r requirements.txt (line 9))
+  Using cached mako-1.3.12-py3-none-any.whl.metadata (2.9 kB)
+Collecting billiard<5.0,>=4.2.0 (from celery==5.3.6->-r requirements.txt (line 13))
+  Using cached billiard-4.2.4-py3-none-any.whl.metadata (4.8 kB)
+Collecting click-didyoumean>=0.3.0 (from celery==5.3.6->-r requirements.txt (line 13))
+  Using cached click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins>=1.1.1 (from celery==5.3.6->-r requirements.txt (line 13))
+  Using cached click_plugins-1.1.1.2-py2.py3-none-any.whl.metadata (6.5 kB)
+Collecting click-repl>=0.2.0 (from celery==5.3.6->-r requirements.txt (line 13))
+  Using cached click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting kombu<6.0,>=5.3.4 (from celery==5.3.6->-r requirements.txt (line 13))
+  Using cached kombu-5.6.2-py3-none-any.whl.metadata (3.5 kB)
+Collecting python-dateutil>=2.8.2 (from celery==5.3.6->-r requirements.txt (line 13))
+  Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Collecting tzdata>=2022.7 (from celery==5.3.6->-r requirements.txt (line 13))
+  Using cached tzdata-2026.2-py2.py3-none-any.whl.metadata (1.4 kB)
+Collecting vine<6.0,>=5.1.0 (from celery==5.3.6->-r requirements.txt (line 13))
+  Using cached vine-5.1.0-py3-none-any.whl.metadata (2.7 kB)
+Collecting PyYAML>=5.3 (from langchain-core==0.2.43->-r requirements.txt (line 19))
+  Using cached pyyaml-6.0.3-cp314-cp314-macosx_10_13_x86_64.whl.metadata (2.4 kB)
+Collecting jsonpatch<2.0,>=1.33 (from langchain-core==0.2.43->-r requirements.txt (line 19))
+  Using cached jsonpatch-1.33-py2.py3-none-any.whl.metadata (3.0 kB)
+Collecting langsmith<0.2.0,>=0.1.112 (from langchain-core==0.2.43->-r requirements.txt (line 19))
+  Using cached langsmith-0.1.147-py3-none-any.whl.metadata (14 kB)
+Collecting packaging<25,>=23.2 (from langchain-core==0.2.43->-r requirements.txt (line 19))
+  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting tenacity!=8.4.0,<9.0.0,>=8.1.0 (from langchain-core==0.2.43->-r requirements.txt (line 19))
+  Using cached tenacity-8.5.0-py3-none-any.whl.metadata (1.2 kB)
+Collecting pytz>=2020.1 (from pandas==2.2.2->-r requirements.txt (line 26))
+  Using cached pytz-2026.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting python-http-client>=3.2.1 (from sendgrid==6.11.0->-r requirements.txt (line 31))
+  Using cached python_http_client-3.3.7-py3-none-any.whl.metadata (6.9 kB)
+Collecting starkbank-ecdsa>=2.0.1 (from sendgrid==6.11.0->-r requirements.txt (line 31))
+  Using cached starkbank_ecdsa-2.3.1-py3-none-any.whl.metadata (8.6 kB)
+Collecting anyio (from httpx==0.27.0->-r requirements.txt (line 37))
+  Using cached anyio-4.13.0-py3-none-any.whl.metadata (4.5 kB)
+Collecting certifi (from httpx==0.27.0->-r requirements.txt (line 37))
+  Using cached certifi-2026.4.22-py3-none-any.whl.metadata (2.5 kB)
+Collecting httpcore==1.* (from httpx==0.27.0->-r requirements.txt (line 37))
+  Using cached httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+Collecting idna (from httpx==0.27.0->-r requirements.txt (line 37))
+  Using cached idna-3.14-py3-none-any.whl.metadata (8.0 kB)
+Collecting sniffio (from httpx==0.27.0->-r requirements.txt (line 37))
+  Using cached sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting charset-normalizer<4,>=2 (from requests==2.32.3->-r requirements.txt (line 38))
+  Using cached charset_normalizer-3.4.7-cp314-cp314-macosx_10_15_universal2.whl.metadata (40 kB)
+Collecting urllib3<3,>=1.21.1 (from requests==2.32.3->-r requirements.txt (line 38))
+  Using cached urllib3-2.7.0-py3-none-any.whl.metadata (6.9 kB)
+Collecting iniconfig (from pytest==8.2.0->-r requirements.txt (line 41))
+  Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting pluggy<2.0,>=1.5 (from pytest==8.2.0->-r requirements.txt (line 41))
+  Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+Collecting httptools>=0.5.0 (from uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Using cached httptools-0.7.1-cp314-cp314-macosx_10_13_universal2.whl.metadata (3.5 kB)
+Collecting uvloop!=0.15.0,!=0.15.1,>=0.14.0 (from uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Using cached uvloop-0.22.1-cp314-cp314-macosx_10_13_x86_64.whl.metadata (4.9 kB)
+Collecting watchfiles>=0.13 (from uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Using cached watchfiles-1.1.1-cp314-cp314-macosx_10_12_x86_64.whl.metadata (4.9 kB)
+Collecting jsonpointer>=1.9 (from jsonpatch<2.0,>=1.33->langchain-core==0.2.43->-r requirements.txt (line 19))
+  Using cached jsonpointer-3.1.1-py3-none-any.whl.metadata (2.4 kB)
+Collecting amqp<6.0.0,>=5.1.1 (from kombu<6.0,>=5.3.4->celery==5.3.6->-r requirements.txt (line 13))
+  Using cached amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting requests-toolbelt<2.0.0,>=1.0.0 (from langsmith<0.2.0,>=0.1.112->langchain-core==0.2.43->-r requirements.txt (line 19))
+  Using cached requests_toolbelt-1.0.0-py2.py3-none-any.whl.metadata (14 kB)
+Collecting distro<2,>=1.7.0 (from anthropic>=0.40.0->-r requirements.txt (line 17))
+  Using cached distro-1.9.0-py3-none-any.whl.metadata (6.8 kB)
+Collecting docstring-parser<1,>=0.15 (from anthropic>=0.40.0->-r requirements.txt (line 17))
+  Using cached docstring_parser-0.18.0-py3-none-any.whl.metadata (3.5 kB)
+Collecting jiter<1,>=0.4.0 (from anthropic>=0.40.0->-r requirements.txt (line 17))
+  Using cached jiter-0.14.0-cp314-cp314-macosx_10_12_x86_64.whl.metadata (5.2 kB)
+Collecting google-ai-generativelanguage==0.6.15 (from google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached google_ai_generativelanguage-0.6.15-py3-none-any.whl.metadata (5.7 kB)
+Collecting google-api-core (from google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached google_api_core-2.30.3-py3-none-any.whl.metadata (3.1 kB)
+Collecting google-api-python-client (from google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached google_api_python_client-2.196.0-py3-none-any.whl.metadata (7.0 kB)
+Collecting google-auth>=2.15.0 (from google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached google_auth-2.52.0-py3-none-any.whl.metadata (5.5 kB)
+Collecting protobuf (from google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached protobuf-7.34.1-cp310-abi3-macosx_10_9_universal2.whl.metadata (595 bytes)
+Collecting tqdm (from google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached tqdm-4.67.3-py3-none-any.whl.metadata (57 kB)
+Collecting proto-plus<2.0.0dev,>=1.22.3 (from google-ai-generativelanguage==0.6.15->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached proto_plus-1.28.0-py3-none-any.whl.metadata (2.2 kB)
+Collecting protobuf (from google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached protobuf-5.29.6-cp38-abi3-macosx_10_9_universal2.whl.metadata (592 bytes)
+Collecting googleapis-common-protos<2.0.0,>=1.63.2 (from google-api-core->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached googleapis_common_protos-1.75.0-py3-none-any.whl.metadata (8.6 kB)
+Collecting grpcio<2.0.0,>=1.33.2 (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached grpcio-1.80.0-cp314-cp314-macosx_11_0_universal2.whl.metadata (3.8 kB)
+Collecting grpcio-status<2.0.0,>=1.33.2 (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached grpcio_status-1.80.0-py3-none-any.whl.metadata (1.3 kB)
+Collecting pyasn1-modules>=0.2.1 (from google-auth>=2.15.0->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached pyasn1_modules-0.4.2-py3-none-any.whl.metadata (3.5 kB)
+Collecting cryptography>=38.0.3 (from google-auth>=2.15.0->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached cryptography-48.0.0-cp311-abi3-macosx_10_9_universal2.whl.metadata (4.3 kB)
+INFO: pip is looking at multiple versions of grpcio-status to determine which version is compatible with other requirements. This could take a while.
+Collecting grpcio-status<2.0.0,>=1.33.2 (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached grpcio_status-1.78.0-py3-none-any.whl.metadata (1.3 kB)
+  Using cached grpcio_status-1.76.0-py3-none-any.whl.metadata (1.1 kB)
+  Using cached grpcio_status-1.75.1-py3-none-any.whl.metadata (1.1 kB)
+Collecting googleapis-common-protos<2.0.0,>=1.63.2 (from google-api-core->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached googleapis_common_protos-1.74.0-py3-none-any.whl.metadata (9.2 kB)
+INFO: pip is still looking at multiple versions of grpcio-status to determine which version is compatible with other requirements. This could take a while.
+  Using cached googleapis_common_protos-1.73.1-py3-none-any.whl.metadata (9.2 kB)
+  Using cached googleapis_common_protos-1.73.0-py3-none-any.whl.metadata (9.4 kB)
+INFO: This is taking longer than usual. You might need to provide the dependency resolver with stricter constraints to reduce runtime. See https://pip.pypa.io/warnings/backtracking for guidance. If you want to abort this run, press Ctrl + C.
+  Using cached googleapis_common_protos-1.72.0-py3-none-any.whl.metadata (9.4 kB)
+  Using cached googleapis_common_protos-1.71.0-py3-none-any.whl.metadata (9.4 kB)
+  Using cached googleapis_common_protos-1.70.0-py3-none-any.whl.metadata (9.3 kB)
+  Using cached googleapis_common_protos-1.69.2-py3-none-any.whl.metadata (9.3 kB)
+  Using cached googleapis_common_protos-1.69.1-py2.py3-none-any.whl.metadata (9.3 kB)
+  Using cached googleapis_common_protos-1.69.0-py2.py3-none-any.whl.metadata (5.1 kB)
+  Using cached googleapis_common_protos-1.68.0-py2.py3-none-any.whl.metadata (5.1 kB)
+  Using cached googleapis_common_protos-1.67.0-py2.py3-none-any.whl.metadata (5.1 kB)
+  Using cached googleapis_common_protos-1.66.0-py2.py3-none-any.whl.metadata (1.5 kB)
+  Using cached googleapis_common_protos-1.65.0-py2.py3-none-any.whl.metadata (1.5 kB)
+  Using cached googleapis_common_protos-1.64.0-py2.py3-none-any.whl.metadata (1.5 kB)
+  Using cached googleapis_common_protos-1.63.2-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1 (from google-ai-generativelanguage==0.6.15->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached google_api_core-2.30.2-py3-none-any.whl.metadata (3.1 kB)
+  Using cached google_api_core-2.30.1-py3-none-any.whl.metadata (3.1 kB)
+  Using cached google_api_core-2.30.0-py3-none-any.whl.metadata (3.1 kB)
+Collecting googleapis-common-protos<2.0.0,>=1.56.3 (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached googleapis_common_protos-1.63.1-py2.py3-none-any.whl.metadata (1.5 kB)
+  Using cached googleapis_common_protos-1.63.0-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting protobuf (from google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached protobuf-4.25.9-cp37-abi3-macosx_10_9_universal2.whl.metadata (541 bytes)
+Collecting googleapis-common-protos<2.0.0,>=1.56.3 (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached googleapis_common_protos-1.62.0-py2.py3-none-any.whl.metadata (1.5 kB)
+  Using cached googleapis_common_protos-1.61.0-py2.py3-none-any.whl.metadata (1.5 kB)
+  Using cached googleapis_common_protos-1.60.0-py2.py3-none-any.whl.metadata (1.5 kB)
+  Using cached googleapis_common_protos-1.59.1-py2.py3-none-any.whl.metadata (1.5 kB)
+  Using cached googleapis_common_protos-1.59.0-py2.py3-none-any.whl.metadata (1.5 kB)
+  Using cached googleapis_common_protos-1.58.0-py2.py3-none-any.whl.metadata (1.5 kB)
+  Using cached googleapis_common_protos-1.57.1-py2.py3-none-any.whl.metadata (1.5 kB)
+  Using cached googleapis_common_protos-1.57.0-py2.py3-none-any.whl.metadata (1.5 kB)
+  Using cached googleapis_common_protos-1.56.4-py2.py3-none-any.whl.metadata (1.3 kB)
+  Using cached googleapis_common_protos-1.56.3-py2.py3-none-any.whl.metadata (1.3 kB)
+Collecting google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1 (from google-ai-generativelanguage==0.6.15->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached google_api_core-2.29.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting googleapis-common-protos<2.0.0,>=1.56.2 (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached googleapis_common_protos-1.56.2-py2.py3-none-any.whl.metadata (1.3 kB)
+Collecting protobuf (from google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached protobuf-3.20.3-py2.py3-none-any.whl.metadata (720 bytes)
+Collecting google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1 (from google-ai-generativelanguage==0.6.15->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached google_api_core-2.28.1-py3-none-any.whl.metadata (3.3 kB)
+  Using cached google_api_core-2.28.0-py3-none-any.whl.metadata (3.2 kB)
+  Using cached google_api_core-2.27.0-py3-none-any.whl.metadata (3.2 kB)
+  Using cached google_api_core-2.26.0-py3-none-any.whl.metadata (3.2 kB)
+  Using cached google_api_core-2.25.2-py3-none-any.whl.metadata (3.0 kB)
+Collecting grpcio-status<2.0.0,>=1.33.2 (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached grpcio_status-1.75.0-py3-none-any.whl.metadata (1.1 kB)
+  Using cached grpcio_status-1.74.0-py3-none-any.whl.metadata (1.1 kB)
+  Using cached grpcio_status-1.73.1-py3-none-any.whl.metadata (1.1 kB)
+  Using cached grpcio_status-1.73.0-py3-none-any.whl.metadata (1.1 kB)
+  Using cached grpcio_status-1.72.2-py3-none-any.whl.metadata (1.1 kB)
+  Using cached grpcio_status-1.72.1-py3-none-any.whl.metadata (1.1 kB)
+  Using cached grpcio_status-1.71.2-py3-none-any.whl.metadata (1.1 kB)
+Collecting prompt-toolkit>=3.0.36 (from click-repl>=0.2.0->celery==5.3.6->-r requirements.txt (line 13))
+  Using cached prompt_toolkit-3.0.52-py3-none-any.whl.metadata (6.4 kB)
+Collecting cffi>=2.0.0 (from cryptography>=38.0.3->google-auth>=2.15.0->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached cffi-2.0.0-cp314-cp314-macosx_10_13_x86_64.whl.metadata (2.6 kB)
+Collecting pycparser (from cffi>=2.0.0->cryptography>=38.0.3->google-auth>=2.15.0->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+Collecting dnspython>=2.0.0 (from email_validator>=2.0.0->fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached dnspython-2.8.0-py3-none-any.whl.metadata (5.7 kB)
+Collecting typer>=0.16.0 (from fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached typer-0.25.1-py3-none-any.whl.metadata (15 kB)
+Collecting rich-toolkit>=0.14.8 (from fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached rich_toolkit-0.19.7-py3-none-any.whl.metadata (1.0 kB)
+Collecting MarkupSafe>=2.0 (from jinja2>=2.11.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached markupsafe-3.0.3-cp314-cp314-macosx_10_13_x86_64.whl.metadata (2.7 kB)
+Collecting wcwidth (from prompt-toolkit>=3.0.36->click-repl>=0.2.0->celery==5.3.6->-r requirements.txt (line 13))
+  Using cached wcwidth-0.7.0-py3-none-any.whl.metadata (36 kB)
+Collecting pyasn1<0.7.0,>=0.6.1 (from pyasn1-modules>=0.2.1->google-auth>=2.15.0->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached pyasn1-0.6.3-py3-none-any.whl.metadata (8.4 kB)
+Collecting six>=1.5 (from python-dateutil>=2.8.2->celery==5.3.6->-r requirements.txt (line 13))
+  Using cached six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Collecting rich>=13.7.1 (from rich-toolkit>=0.14.8->fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+Collecting markdown-it-py>=2.2.0 (from rich>=13.7.1->rich-toolkit>=0.14.8->fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting pygments<3.0.0,>=2.13.0 (from rich>=13.7.1->rich-toolkit>=0.14.8->fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.7.1->rich-toolkit>=0.14.8->fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Collecting shellingham>=1.3.0 (from typer>=0.16.0->fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+Collecting annotated-doc>=0.0.2 (from typer>=0.16.0->fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Using cached annotated_doc-0.0.4-py3-none-any.whl.metadata (6.6 kB)
+Collecting httplib2<1.0.0,>=0.19.0 (from google-api-python-client->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached httplib2-0.31.2-py3-none-any.whl.metadata (2.2 kB)
+Collecting google-auth-httplib2<1.0.0,>=0.2.0 (from google-api-python-client->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached google_auth_httplib2-0.4.0-py3-none-any.whl.metadata (3.0 kB)
+Collecting uritemplate<5,>=3.0.1 (from google-api-python-client->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached uritemplate-4.2.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting pyparsing<4,>=3.1 (from httplib2<1.0.0,>=0.19.0->google-api-python-client->google-generativeai>=0.8.0->-r requirements.txt (line 23))
+  Using cached pyparsing-3.3.2-py3-none-any.whl.metadata (5.8 kB)
+Using cached fastapi-0.111.0-py3-none-any.whl (91 kB)
+Using cached pydantic-2.7.4-py3-none-any.whl (409 kB)
+Using cached uvicorn-0.29.0-py3-none-any.whl (60 kB)
+Using cached websockets-12.0-py3-none-any.whl (118 kB)
+Using cached python_multipart-0.0.9-py3-none-any.whl (22 kB)
+Using cached SQLAlchemy-2.0.29-py3-none-any.whl (1.9 MB)
+Using cached alembic-1.13.1-py3-none-any.whl (233 kB)
+Using cached redis-5.0.3-py3-none-any.whl (251 kB)
+Using cached celery-5.3.6-py3-none-any.whl (422 kB)
+Using cached langgraph-0.1.19-py3-none-any.whl (102 kB)
+Using cached langchain_core-0.2.43-py3-none-any.whl (397 kB)
+Using cached sendgrid-6.11.0-py3-none-any.whl (101 kB)
+Using cached pydantic_settings-2.2.1-py3-none-any.whl (13 kB)
+Using cached python_dotenv-1.0.1-py3-none-any.whl (19 kB)
+Using cached httpx-0.27.0-py3-none-any.whl (75 kB)
+Using cached requests-2.32.3-py3-none-any.whl (64 kB)
+Using cached pytest-8.2.0-py3-none-any.whl (339 kB)
+Using cached pytest_asyncio-0.23.6-py3-none-any.whl (17 kB)
+Using cached billiard-4.2.4-py3-none-any.whl (87 kB)
+Using cached charset_normalizer-3.4.7-cp314-cp314-macosx_10_15_universal2.whl (309 kB)
+Using cached click-8.3.3-py3-none-any.whl (110 kB)
+Using cached httpcore-1.0.9-py3-none-any.whl (78 kB)
+Using cached idna-3.14-py3-none-any.whl (72 kB)
+Using cached jsonpatch-1.33-py2.py3-none-any.whl (12 kB)
+Using cached kombu-5.6.2-py3-none-any.whl (214 kB)
+Using cached vine-5.1.0-py3-none-any.whl (9.6 kB)
+Using cached amqp-5.3.1-py3-none-any.whl (50 kB)
+Using cached langsmith-0.1.147-py3-none-any.whl (311 kB)
+Using cached orjson-3.11.9-cp314-cp314-macosx_10_15_x86_64.macosx_11_0_arm64.macosx_10_15_universal2.whl (228 kB)
+Using cached packaging-24.2-py3-none-any.whl (65 kB)
+Using cached pluggy-1.6.0-py3-none-any.whl (20 kB)
+Using cached requests_toolbelt-1.0.0-py2.py3-none-any.whl (54 kB)
+Using cached starlette-0.37.2-py3-none-any.whl (71 kB)
+Using cached anyio-4.13.0-py3-none-any.whl (114 kB)
+Using cached tenacity-8.5.0-py3-none-any.whl (28 kB)
+Using cached urllib3-2.7.0-py3-none-any.whl (131 kB)
+Using cached anthropic-0.101.0-py3-none-any.whl (753 kB)
+Using cached distro-1.9.0-py3-none-any.whl (20 kB)
+Using cached docstring_parser-0.18.0-py3-none-any.whl (22 kB)
+Using cached jiter-0.14.0-cp314-cp314-macosx_10_12_x86_64.whl (315 kB)
+Using cached typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+Using cached groq-1.2.0-py3-none-any.whl (142 kB)
+Using cached google_generativeai-0.8.6-py3-none-any.whl (155 kB)
+Using cached google_ai_generativelanguage-0.6.15-py3-none-any.whl (1.3 MB)
+Using cached google_api_core-2.25.2-py3-none-any.whl (162 kB)
+Using cached googleapis_common_protos-1.75.0-py3-none-any.whl (300 kB)
+Using cached grpcio_status-1.71.2-py3-none-any.whl (14 kB)
+Using cached protobuf-5.29.6-cp38-abi3-macosx_10_9_universal2.whl (418 kB)
+Using cached google_auth-2.52.0-py3-none-any.whl (245 kB)
+Using cached grpcio-1.80.0-cp314-cp314-macosx_11_0_universal2.whl (12.0 MB)
+Using cached proto_plus-1.28.0-py3-none-any.whl (50 kB)
+Using cached annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Using cached certifi-2026.4.22-py3-none-any.whl (135 kB)
+Using cached click_didyoumean-0.3.1-py3-none-any.whl (3.6 kB)
+Using cached click_plugins-1.1.1.2-py2.py3-none-any.whl (11 kB)
+Using cached click_repl-0.3.0-py3-none-any.whl (10 kB)
+Using cached cryptography-48.0.0-cp311-abi3-macosx_10_9_universal2.whl (8.0 MB)
+Using cached cffi-2.0.0-cp314-cp314-macosx_10_13_x86_64.whl (185 kB)
+Using cached email_validator-2.3.0-py3-none-any.whl (35 kB)
+Using cached dnspython-2.8.0-py3-none-any.whl (331 kB)
+Using cached fastapi_cli-0.0.24-py3-none-any.whl (12 kB)
+Using cached greenlet-3.5.0-cp314-cp314-macosx_11_0_universal2.whl (285 kB)
+Using cached h11-0.16.0-py3-none-any.whl (37 kB)
+Using cached httptools-0.7.1-cp314-cp314-macosx_10_13_universal2.whl (203 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Using cached jsonpointer-3.1.1-py3-none-any.whl (7.7 kB)
+Using cached markupsafe-3.0.3-cp314-cp314-macosx_10_13_x86_64.whl (11 kB)
+Using cached prompt_toolkit-3.0.52-py3-none-any.whl (391 kB)
+Using cached pyasn1_modules-0.4.2-py3-none-any.whl (181 kB)
+Using cached pyasn1-0.6.3-py3-none-any.whl (83 kB)
+Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Using cached python_http_client-3.3.7-py3-none-any.whl (8.4 kB)
+Using cached pytz-2026.2-py2.py3-none-any.whl (510 kB)
+Using cached pyyaml-6.0.3-cp314-cp314-macosx_10_13_x86_64.whl (181 kB)
+Using cached rich_toolkit-0.19.7-py3-none-any.whl (32 kB)
+Using cached rich-15.0.0-py3-none-any.whl (310 kB)
+Using cached pygments-2.20.0-py3-none-any.whl (1.2 MB)
+Using cached markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+Using cached mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Using cached six-1.17.0-py2.py3-none-any.whl (11 kB)
+Using cached starkbank_ecdsa-2.3.1-py3-none-any.whl (22 kB)
+Using cached typer-0.25.1-py3-none-any.whl (58 kB)
+Using cached annotated_doc-0.0.4-py3-none-any.whl (5.3 kB)
+Using cached shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+Using cached tzdata-2026.2-py2.py3-none-any.whl (349 kB)
+Using cached ujson-5.12.1-cp314-cp314-macosx_10_15_x86_64.whl (58 kB)
+Using cached uvloop-0.22.1-cp314-cp314-macosx_10_13_x86_64.whl (752 kB)
+Using cached watchfiles-1.1.1-cp314-cp314-macosx_10_12_x86_64.whl (404 kB)
+Using cached google_api_python_client-2.196.0-py3-none-any.whl (15.2 MB)
+Using cached google_auth_httplib2-0.4.0-py3-none-any.whl (9.5 kB)
+Using cached httplib2-0.31.2-py3-none-any.whl (91 kB)
+Using cached pyparsing-3.3.2-py3-none-any.whl (122 kB)
+Using cached uritemplate-4.2.0-py3-none-any.whl (11 kB)
+Using cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+Using cached mako-1.3.12-py3-none-any.whl (78 kB)
+Using cached pycparser-3.0-py3-none-any.whl (48 kB)
+Using cached sniffio-1.3.1-py3-none-any.whl (10 kB)
+Using cached tqdm-4.67.3-py3-none-any.whl (78 kB)
+Using cached wcwidth-0.7.0-py3-none-any.whl (110 kB)
+Building wheels for collected packages: asyncpg, pydantic-core
+  Building wheel for asyncpg (pyproject.toml) ... error
+  error: subprocess-exited-with-error
+  
+  × Building wheel for asyncpg (pyproject.toml) did not run successfully.
+  │ exit code: 1
+  ╰─> [306 lines of output]
+      /private/var/folders/79/2vtgx8nd2x59zzcqv_ncq8m00000gn/T/pip-build-env-co__krgt/overlay/lib/python3.14/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: SetuptoolsDeprecationWarning: `project.license` as a TOML table is deprecated
+      !!
+      
+              ********************************************************************************
+              Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+      
+              By 2027-Feb-18, you need to update your project and remove deprecated calls
+              or your builds will no longer be supported.
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        corresp(dist, value, root_dir)
+      /private/var/folders/79/2vtgx8nd2x59zzcqv_ncq8m00000gn/T/pip-build-env-co__krgt/overlay/lib/python3.14/site-packages/setuptools/config/_apply_pyprojecttoml.py:61: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: Apache Software License
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        dist._finalize_license_expression()
+      /private/var/folders/79/2vtgx8nd2x59zzcqv_ncq8m00000gn/T/pip-build-env-co__krgt/overlay/lib/python3.14/site-packages/setuptools/dist.py:765: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: Apache Software License
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running bdist_wheel
+      running build
+      running build_py
+      creating build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/compat.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/_version.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/transaction.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/__init__.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/types.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/serverversion.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/prepared_stmt.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/connection.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/utils.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/cluster.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/connect_utils.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/introspection.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/connresource.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/pool.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/_asyncio_compat.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      copying asyncpg/cursor.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg
+      creating build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/_testbase
+      copying asyncpg/_testbase/__init__.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/_testbase
+      copying asyncpg/_testbase/fuzzer.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/_testbase
+      creating build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/__init__.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      creating build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/exceptions
+      copying asyncpg/exceptions/_base.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/exceptions
+      copying asyncpg/exceptions/__init__.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/exceptions
+      creating build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/__init__.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/types.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      creating build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol/codecs
+      copying asyncpg/protocol/codecs/__init__.py -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol/codecs
+      running egg_info
+      writing asyncpg.egg-info/PKG-INFO
+      writing dependency_links to asyncpg.egg-info/dependency_links.txt
+      writing requirements to asyncpg.egg-info/requires.txt
+      writing top-level names to asyncpg.egg-info/top_level.txt
+      reading manifest file 'asyncpg.egg-info/SOURCES.txt'
+      reading manifest template 'MANIFEST.in'
+      warning: no files found matching '*.py' under directory 'examples'
+      adding license file 'LICENSE'
+      adding license file 'AUTHORS'
+      writing manifest file 'asyncpg.egg-info/SOURCES.txt'
+      copying asyncpg/protocol/consts.pxi -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/coreproto.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/coreproto.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/cpythonx.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/encodings.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/pgtypes.pxi -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/prepared_stmt.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/prepared_stmt.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/protocol.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/protocol.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/scram.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/scram.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/settings.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/protocol/settings.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol
+      copying asyncpg/pgproto/__init__.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/buffer.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/buffer.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/consts.pxi -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/cpythonx.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/debug.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/frb.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/frb.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/hton.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/pgproto.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/pgproto.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/tohex.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/pgproto/uuid.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      copying asyncpg/protocol/codecs/array.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol/codecs
+      copying asyncpg/protocol/codecs/base.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol/codecs
+      copying asyncpg/protocol/codecs/base.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol/codecs
+      copying asyncpg/protocol/codecs/pgproto.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol/codecs
+      copying asyncpg/protocol/codecs/range.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol/codecs
+      copying asyncpg/protocol/codecs/record.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol/codecs
+      copying asyncpg/protocol/codecs/textutils.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol/codecs
+      creating build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol/record
+      copying asyncpg/protocol/record/__init__.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/protocol/record
+      creating build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/__init__.pxd -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/bits.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/bytea.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/context.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/datetime.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/float.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/geometry.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/hstore.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/int.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/json.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/jsonpath.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/misc.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/network.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/numeric.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/pg_snapshot.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/text.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/tid.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      copying asyncpg/pgproto/codecs/uuid.pyx -> build/lib.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/codecs
+      running build_ext
+      building 'asyncpg.pgproto.pgproto' extension
+      creating build/temp.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto
+      clang -fno-strict-overflow -Wsign-compare -Wunreachable-code -fno-common -dynamic -DNDEBUG -g -O3 -Wall "-I/Users/abhisheksuwalka/SEM-8/mini-projects/finance agentic ai project/FinAgent-OS-main/backend/.venv/include" -I/usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14 -c asyncpg/pgproto/pgproto.c -o build/temp.macosx-26.0-x86_64-cpython-314/asyncpg/pgproto/pgproto.o -O2 -fsigned-char -Wall -Wsign-compare -Wconversion
+      asyncpg/pgproto/pgproto.c:864:59: warning: 'Py_UNICODE' is deprecated [-Wdeprecated-declarations]
+        864 | static CYTHON_INLINE size_t __Pyx_Py_UNICODE_strlen(const Py_UNICODE *u) {
+            |                                                           ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/unicodeobject.h:10:1: note: 'Py_UNICODE' has been explicitly marked deprecated here
+         10 | Py_DEPRECATED(3.13) typedef wchar_t Py_UNICODE;
+            | ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/pyport.h:281:54: note: expanded from macro 'Py_DEPRECATED'
+        281 | #define Py_DEPRECATED(VERSION_UNUSED) __attribute__((__deprecated__))
+            |                                                      ^
+      asyncpg/pgproto/pgproto.c:865:11: warning: 'Py_UNICODE' is deprecated [-Wdeprecated-declarations]
+        865 |     const Py_UNICODE *u_end = u;
+            |           ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/unicodeobject.h:10:1: note: 'Py_UNICODE' has been explicitly marked deprecated here
+         10 | Py_DEPRECATED(3.13) typedef wchar_t Py_UNICODE;
+            | ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/pyport.h:281:54: note: expanded from macro 'Py_DEPRECATED'
+        281 | #define Py_DEPRECATED(VERSION_UNUSED) __attribute__((__deprecated__))
+            |                                                      ^
+      asyncpg/pgproto/pgproto.c:1667:39: error: call to undeclared function '_PyInterpreterState_GetConfig'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+       1667 |     __pyx_assertions_enabled_flag = ! _PyInterpreterState_GetConfig(__Pyx_PyThreadState_Current->interp)->optimization_level;
+            |                                       ^
+      asyncpg/pgproto/pgproto.c:1667:107: error: member reference type 'int' is not a pointer
+       1667 |     __pyx_assertions_enabled_flag = ! _PyInterpreterState_GetConfig(__Pyx_PyThreadState_Current->interp)->optimization_level;
+            |                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ^
+      asyncpg/pgproto/pgproto.c:38932:13: error: call to undeclared function '_PyUnicode_FastCopyCharacters'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+       38932 |             _PyUnicode_FastCopyCharacters(result_uval, char_pos, uval, 0, ulength);
+             |             ^
+      asyncpg/pgproto/pgproto.c:38932:13: note: did you mean 'PyUnicode_CopyCharacters'?
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/unicodeobject.h:435:24: note: 'PyUnicode_CopyCharacters' declared here
+        435 | PyAPI_FUNC(Py_ssize_t) PyUnicode_CopyCharacters(
+            |                        ^
+      asyncpg/pgproto/pgproto.c:41811:70: error: too few arguments to function call, expected 6, have 5
+       41809 |                 int ret = _PyLong_AsByteArray((PyLongObject *)v,
+             |                           ~~~~~~~~~~~~~~~~~~~
+       41810 |                                               bytes, sizeof(val),
+       41811 |                                               is_little, !is_unsigned);
+             |                                                                      ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/longobject.h:84:17: note: '_PyLong_AsByteArray' declared here
+         84 | PyAPI_FUNC(int) _PyLong_AsByteArray(PyLongObject* v,
+            |                 ^                   ~~~~~~~~~~~~~~~~
+         85 |     unsigned char* bytes, size_t n,
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         86 |     int little_endian, int is_signed, int with_exceptions);
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      asyncpg/pgproto/pgproto.c:42045:70: error: too few arguments to function call, expected 6, have 5
+       42043 |                 int ret = _PyLong_AsByteArray((PyLongObject *)v,
+             |                           ~~~~~~~~~~~~~~~~~~~
+       42044 |                                               bytes, sizeof(val),
+       42045 |                                               is_little, !is_unsigned);
+             |                                                                      ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/longobject.h:84:17: note: '_PyLong_AsByteArray' declared here
+         84 | PyAPI_FUNC(int) _PyLong_AsByteArray(PyLongObject* v,
+            |                 ^                   ~~~~~~~~~~~~~~~~
+         85 |     unsigned char* bytes, size_t n,
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         86 |     int little_endian, int is_signed, int with_exceptions);
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      asyncpg/pgproto/pgproto.c:42241:70: error: too few arguments to function call, expected 6, have 5
+       42239 |                 int ret = _PyLong_AsByteArray((PyLongObject *)v,
+             |                           ~~~~~~~~~~~~~~~~~~~
+       42240 |                                               bytes, sizeof(val),
+       42241 |                                               is_little, !is_unsigned);
+             |                                                                      ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/longobject.h:84:17: note: '_PyLong_AsByteArray' declared here
+         84 | PyAPI_FUNC(int) _PyLong_AsByteArray(PyLongObject* v,
+            |                 ^                   ~~~~~~~~~~~~~~~~
+         85 |     unsigned char* bytes, size_t n,
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         86 |     int little_endian, int is_signed, int with_exceptions);
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      asyncpg/pgproto/pgproto.c:42437:70: error: too few arguments to function call, expected 6, have 5
+       42435 |                 int ret = _PyLong_AsByteArray((PyLongObject *)v,
+             |                           ~~~~~~~~~~~~~~~~~~~
+       42436 |                                               bytes, sizeof(val),
+       42437 |                                               is_little, !is_unsigned);
+             |                                                                      ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/longobject.h:84:17: note: '_PyLong_AsByteArray' declared here
+         84 | PyAPI_FUNC(int) _PyLong_AsByteArray(PyLongObject* v,
+            |                 ^                   ~~~~~~~~~~~~~~~~
+         85 |     unsigned char* bytes, size_t n,
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         86 |     int little_endian, int is_signed, int with_exceptions);
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      asyncpg/pgproto/pgproto.c:42747:70: error: too few arguments to function call, expected 6, have 5
+       42745 |                 int ret = _PyLong_AsByteArray((PyLongObject *)v,
+             |                           ~~~~~~~~~~~~~~~~~~~
+       42746 |                                               bytes, sizeof(val),
+       42747 |                                               is_little, !is_unsigned);
+             |                                                                      ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/longobject.h:84:17: note: '_PyLong_AsByteArray' declared here
+         84 | PyAPI_FUNC(int) _PyLong_AsByteArray(PyLongObject* v,
+            |                 ^                   ~~~~~~~~~~~~~~~~
+         85 |     unsigned char* bytes, size_t n,
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         86 |     int little_endian, int is_signed, int with_exceptions);
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      asyncpg/pgproto/pgproto.c:43057:70: error: too few arguments to function call, expected 6, have 5
+       43055 |                 int ret = _PyLong_AsByteArray((PyLongObject *)v,
+             |                           ~~~~~~~~~~~~~~~~~~~
+       43056 |                                               bytes, sizeof(val),
+       43057 |                                               is_little, !is_unsigned);
+             |                                                                      ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/longobject.h:84:17: note: '_PyLong_AsByteArray' declared here
+         84 | PyAPI_FUNC(int) _PyLong_AsByteArray(PyLongObject* v,
+            |                 ^                   ~~~~~~~~~~~~~~~~
+         85 |     unsigned char* bytes, size_t n,
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         86 |     int little_endian, int is_signed, int with_exceptions);
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      asyncpg/pgproto/pgproto.c:43291:70: error: too few arguments to function call, expected 6, have 5
+       43289 |                 int ret = _PyLong_AsByteArray((PyLongObject *)v,
+             |                           ~~~~~~~~~~~~~~~~~~~
+       43290 |                                               bytes, sizeof(val),
+       43291 |                                               is_little, !is_unsigned);
+             |                                                                      ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/longobject.h:84:17: note: '_PyLong_AsByteArray' declared here
+         84 | PyAPI_FUNC(int) _PyLong_AsByteArray(PyLongObject* v,
+            |                 ^                   ~~~~~~~~~~~~~~~~
+         85 |     unsigned char* bytes, size_t n,
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         86 |     int little_endian, int is_signed, int with_exceptions);
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      asyncpg/pgproto/pgproto.c:43487:70: error: too few arguments to function call, expected 6, have 5
+       43485 |                 int ret = _PyLong_AsByteArray((PyLongObject *)v,
+             |                           ~~~~~~~~~~~~~~~~~~~
+       43486 |                                               bytes, sizeof(val),
+       43487 |                                               is_little, !is_unsigned);
+             |                                                                      ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/longobject.h:84:17: note: '_PyLong_AsByteArray' declared here
+         84 | PyAPI_FUNC(int) _PyLong_AsByteArray(PyLongObject* v,
+            |                 ^                   ~~~~~~~~~~~~~~~~
+         85 |     unsigned char* bytes, size_t n,
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         86 |     int little_endian, int is_signed, int with_exceptions);
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      asyncpg/pgproto/pgproto.c:43721:70: error: too few arguments to function call, expected 6, have 5
+       43719 |                 int ret = _PyLong_AsByteArray((PyLongObject *)v,
+             |                           ~~~~~~~~~~~~~~~~~~~
+       43720 |                                               bytes, sizeof(val),
+       43721 |                                               is_little, !is_unsigned);
+             |                                                                      ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/longobject.h:84:17: note: '_PyLong_AsByteArray' declared here
+         84 | PyAPI_FUNC(int) _PyLong_AsByteArray(PyLongObject* v,
+            |                 ^                   ~~~~~~~~~~~~~~~~
+         85 |     unsigned char* bytes, size_t n,
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         86 |     int little_endian, int is_signed, int with_exceptions);
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      asyncpg/pgproto/pgproto.c:43917:70: error: too few arguments to function call, expected 6, have 5
+       43915 |                 int ret = _PyLong_AsByteArray((PyLongObject *)v,
+             |                           ~~~~~~~~~~~~~~~~~~~
+       43916 |                                               bytes, sizeof(val),
+       43917 |                                               is_little, !is_unsigned);
+             |                                                                      ^
+      /usr/local/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14/cpython/longobject.h:84:17: note: '_PyLong_AsByteArray' declared here
+         84 | PyAPI_FUNC(int) _PyLong_AsByteArray(PyLongObject* v,
+            |                 ^                   ~~~~~~~~~~~~~~~~
+         85 |     unsigned char* bytes, size_t n,
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         86 |     int little_endian, int is_signed, int with_exceptions);
+            |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      2 warnings and 13 errors generated.
+      error: command '/usr/bin/clang' failed with exit code 1
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+  ERROR: Failed building wheel for asyncpg
+  Building wheel for pydantic-core (pyproject.toml) ... error
+  error: subprocess-exited-with-error
+  
+  × Building wheel for pydantic-core (pyproject.toml) did not run successfully.
+  │ exit code: 1
+  ╰─> [88 lines of output]
+      Python reports SOABI: cpython-314-darwin
+      Computed rustc target triple: x86_64-apple-darwin
+      Installation directory: /Users/abhisheksuwalka/Library/Caches/puccinialin
+      Rustup already downloaded
+      Installing rust to /Users/abhisheksuwalka/Library/Caches/puccinialin/rustup
+      warn: Rustup is not running natively. It's running under emulation of x86_64-apple-darwin.
+      warn: For best compatibility and performance you should reinstall rustup for your native CPU.
+      warn: It looks like you have an existing rustup settings file at:
+      warn: /Users/abhisheksuwalka/Library/Caches/puccinialin/rustup/settings.toml
+      warn: Rustup will install the default toolchain as specified in the settings file,
+      warn: instead of the one inferred from the default host triple.
+      info: profile set to minimal
+      info: setting default host triple to x86_64-apple-darwin
+      warn: Updating existing toolchain, profile choice will be ignored
+      info: syncing channel updates for stable-x86_64-apple-darwin
+      info: default toolchain set to stable-x86_64-apple-darwin
+      Checking if cargo is installed
+      cargo 1.95.0 (f2d3ce0bd 2026-03-21)
+      Rust not found, installing into a temporary directory
+      Running `maturin pep517 build-wheel -i /Users/abhisheksuwalka/SEM-8/mini-projects/finance agentic ai project/FinAgent-OS-main/backend/.venv/bin/python3.14 --compatibility off`
+      📦 Including license file `LICENSE`
+      🍹 Building a mixed python/rust project
+      🐍 Found CPython 3.14 at /Users/abhisheksuwalka/SEM-8/mini-projects/finance agentic ai project/FinAgent-OS-main/backend/.venv/bin/python3.14
+      🔗 Found pyo3 bindings
+      📡 Using build options features, bindings from pyproject.toml
+      💻 Using `MACOSX_DEPLOYMENT_TARGET=10.12` for x86_64-apple-darwin by default
+         Compiling autocfg v1.1.0
+         Compiling target-lexicon v0.12.9
+         Compiling python3-dll-a v0.2.9
+         Compiling proc-macro2 v1.0.76
+         Compiling unicode-ident v1.0.10
+         Compiling once_cell v1.18.0
+         Compiling libc v0.2.147
+         Compiling heck v0.4.1
+         Compiling cfg-if v1.0.0
+         Compiling version_check v0.9.4
+         Compiling rustversion v1.0.13
+         Compiling parking_lot_core v0.9.8
+         Compiling tinyvec_macros v0.1.1
+         Compiling scopeguard v1.1.0
+         Compiling static_assertions v1.1.0
+         Compiling num-traits v0.2.16
+         Compiling lock_api v0.4.10
+         Compiling num-integer v0.1.45
+         Compiling num-bigint v0.4.4
+         Compiling memoffset v0.9.0
+         Compiling quote v1.0.35
+         Compiling portable-atomic v1.6.0
+         Compiling pyo3-build-config v0.21.2
+         Compiling radium v0.7.0
+         Compiling smallvec v1.13.2
+         Compiling syn v2.0.48
+         Compiling ahash v0.8.10
+         Compiling lexical-util v0.8.5
+         Compiling tinyvec v1.6.0
+         Compiling tap v1.0.1
+         Compiling serde v1.0.203
+         Compiling memchr v2.6.3
+         Compiling parking_lot v0.12.1
+         Compiling unicode-normalization v0.1.22
+         Compiling pyo3-macros-backend v0.21.2
+         Compiling lexical-parse-integer v0.8.6
+         Compiling aho-corasick v1.0.2
+         Compiling pyo3-ffi v0.21.2
+         Compiling pyo3 v0.21.2
+         Compiling serde_derive v1.0.203
+         Compiling strum_macros v0.25.3
+      error: failed to run custom build command for `pyo3-ffi v0.21.2`
+      
+      Caused by:
+        process didn't exit successfully: `/private/var/folders/79/2vtgx8nd2x59zzcqv_ncq8m00000gn/T/pip-install-zg_cbr4z/pydantic-core_09821b2dc1d34bebb51247b0cfa49353/target/release/build/pyo3-ffi-a5372055aeff6727/build-script-build` (exit status: 1)
+        --- stdout
+        cargo:rerun-if-env-changed=PYO3_CROSS
+        cargo:rerun-if-env-changed=PYO3_CROSS_LIB_DIR
+        cargo:rerun-if-env-changed=PYO3_CROSS_PYTHON_VERSION
+        cargo:rerun-if-env-changed=PYO3_CROSS_PYTHON_IMPLEMENTATION
+        cargo:rerun-if-env-changed=PYO3_PRINT_CONFIG
+        cargo:rerun-if-env-changed=PYO3_USE_ABI3_FORWARD_COMPATIBILITY
+      
+        --- stderr
+        error: the configured Python interpreter version (3.14) is newer than PyO3's maximum supported version (3.12)
+        = help: please check if an updated version of PyO3 is available. Current version: 0.21.2
+        = help: set PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 to suppress this check and build anyway using the stable ABI
+      warning: build failed, waiting for other jobs to finish...
+      💥 maturin failed
+        Caused by: Failed to build a native library through cargo
+        Caused by: Cargo build finished with "exit status: 101": `env -u CARGO MACOSX_DEPLOYMENT_TARGET="10.12" PYO3_BUILD_EXTENSION_MODULE="1" PYO3_ENVIRONMENT_SIGNATURE="cpython-3.14-64bit" PYO3_PYTHON="/Users/abhisheksuwalka/SEM-8/mini-projects/finance agentic ai project/FinAgent-OS-main/backend/.venv/bin/python3.14" PYTHON_SYS_EXECUTABLE="/Users/abhisheksuwalka/SEM-8/mini-projects/finance agentic ai project/FinAgent-OS-main/backend/.venv/bin/python3.14" "cargo" "rustc" "--profile" "release" "--features" "pyo3/extension-module" "--message-format" "json-render-diagnostics" "--manifest-path" "/private/var/folders/79/2vtgx8nd2x59zzcqv_ncq8m00000gn/T/pip-install-zg_cbr4z/pydantic-core_09821b2dc1d34bebb51247b0cfa49353/Cargo.toml" "--lib" "--crate-type" "cdylib" "--" "-C" "link-args=-Wl,-install_name,@rpath/pydantic_core._pydantic_core.cpython-314-darwin.so"`
+      Error: command ['maturin', 'pep517', 'build-wheel', '-i', '/Users/abhisheksuwalka/SEM-8/mini-projects/finance agentic ai project/FinAgent-OS-main/backend/.venv/bin/python3.14', '--compatibility', 'off'] returned non-zero exit status 1
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+  ERROR: Failed building wheel for pydantic-core
+Failed to build asyncpg pydantic-core
+
+[notice] A new release of pip is available: 26.0.1 -> 26.1.1
+[notice] To update, run: pip install --upgrade pip
+error: failed-wheel-build-for-install
+
+× Failed to build installable wheels for some pyproject.toml based projects
+╰─> asyncpg, pydantic-core
+(.venv) abhisheksuwalka@MacBook-Air-5 backend %
