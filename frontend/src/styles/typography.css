@@ -1,0 +1,48 @@
+/* Markdown prose styling overrides for dark-theme compatibility */
+.prose {
+  color: var(--color-text-primary);
+  max-width: none;
+}
+.prose table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.prose th, .prose td {
+  border: 1px solid var(--color-border-default);
+  padding: var(--space-2) var(--space-3);
+}
+.prose th {
+  background: var(--color-bg-hover);
+  font-weight: 600;
+  text-align: left;
+}
+.prose pre {
+  background: var(--color-bg-sunken);
+  font-family: var(--font-family-mono);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  color: var(--color-text-primary);
+  overflow-x: auto;
+}
+.prose code {
+  background: var(--color-bg-sunken);
+  font-family: var(--font-family-mono);
+  border-radius: var(--radius-sm);
+  padding: 0.2em 0.4em;
+  font-size: 85%;
+  color: var(--color-text-primary);
+}
+.prose pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+.prose strong {
+  color: var(--color-text-primary);
+}
+.prose a {
+  color: var(--color-primary-400);
+}
+.prose p {
+  line-height: var(--line-height-relaxed);
+}

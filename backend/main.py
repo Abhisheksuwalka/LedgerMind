@@ -1,5 +1,9 @@
 import logging
 import os
+from dotenv import load_dotenv
+
+# Load env variables before doing anything else
+load_dotenv(os.path.join(os.path.dirname(__file__), "../.env"))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

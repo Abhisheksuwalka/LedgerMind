@@ -1,70 +1,84 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws'
+type WSEvent = 'alert' | 'analysis_progress' | 'chat_tool_call';
+type Handler = (payload: unknown) => void;
 
-export interface WSMessage {
-  type: string
-  run_id?: string
-  status?: string
-  agent?: string
-  metrics?: Record<string, number | null>
-  anomalies?: AnomalyItem[]
-  completed_agents?: string[]
-  errors?: { agent: string; error: string }[]
-  data?: Record<string, unknown>
-  executive_summary?: string
-}
+const BASE_RECONNECT_MS = 1_000;
+const MAX_RECONNECT_MS = 30_000;
 
-export interface AnomalyItem {
-  transaction_date: string
-  description: string
-  amount: number
-  severity: 'low' | 'medium' | 'high' | 'critical'
-  reason: string
-  recommended_action: string
-  anomaly_score: number
-}
+/**
+ * WebSocket hook with exponential-backoff reconnect.
+ *
+ * On `alert` events:  invalidates the ['alerts'] query so the UI refreshes.
+ * On `analysis_progress`: calls the optional handler.
+ * On `chat_tool_call`:    calls the optional handler.
+ */
+export function useWebSocket(handlers: Partial<Record<WSEvent, Handler>>) {
+  const ws = useRef<WebSocket | null>(null);
+  const handlersRef = useRef(handlers);
+  handlersRef.current = handlers;
 
-type Status = 'connecting' | 'open' | 'closed' | 'error'
-
-export function useWebSocket() {
-  const ws = useRef<WebSocket | null>(null)
-  const [status, setStatus] = useState<Status>('connecting')
-  const [lastMessage, setLastMessage] = useState<WSMessage | null>(null)
-  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const connect = useCallback(() => {
-    if (ws.current?.readyState === WebSocket.OPEN) return
-
-    ws.current = new WebSocket(WS_URL)
-
-    ws.current.onopen = () => setStatus('open')
-
-    ws.current.onmessage = (event) => {
-      try {
-        const msg: WSMessage = JSON.parse(event.data as string)
-        setLastMessage(msg)
-      } catch {
-        // ignore malformed messages
-      }
-    }
-
-    ws.current.onerror = () => setStatus('error')
-
-    ws.current.onclose = () => {
-      setStatus('closed')
-      // Reconnect after 3 s
-      reconnectTimer.current = setTimeout(connect, 3000)
-    }
-  }, [])
+  const queryClient = useQueryClient();
+  const reconnectDelay = useRef(BASE_RECONNECT_MS);
+  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const unmounted = useRef(false);
 
   useEffect(() => {
-    connect()
-    return () => {
-      reconnectTimer.current && clearTimeout(reconnectTimer.current)
-      ws.current?.close()
-    }
-  }, [connect])
+    unmounted.current = false;
 
-  return { status, lastMessage }
+    function connect() {
+      if (unmounted.current) return;
+
+      const url = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
+      const socket = new WebSocket(url);
+      ws.current = socket;
+
+      socket.onopen = () => {
+        reconnectDelay.current = BASE_RECONNECT_MS; // reset backoff on success
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const { type, payload, data } = JSON.parse(event.data);
+          const eventType = type as WSEvent;
+          const eventPayload = payload ?? data;
+
+          // Built-in: alert event always invalidates the alerts query
+          if (eventType === 'alert') {
+            queryClient.invalidateQueries({ queryKey: ['alerts'] });
+            queryClient.invalidateQueries({ queryKey: ['snapshot'] });
+          }
+
+          // Call custom handler if provided
+          handlersRef.current[eventType]?.(eventPayload);
+        } catch {
+          // ignore malformed messages
+        }
+      };
+
+      socket.onclose = () => {
+        if (unmounted.current) return;
+        // Exponential backoff reconnect
+        reconnectTimer.current = setTimeout(() => {
+          reconnectDelay.current = Math.min(reconnectDelay.current * 2, MAX_RECONNECT_MS);
+          connect();
+        }, reconnectDelay.current);
+      };
+
+      socket.onerror = () => {
+        socket.close(); // triggers onclose → reconnect
+      };
+    }
+
+    connect();
+
+    return () => {
+      unmounted.current = true;
+      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+      ws.current?.close();
+    };
+  }, [queryClient]);
+
+  return ws;
 }

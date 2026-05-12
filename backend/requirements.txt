@@ -4,9 +4,9 @@ websockets==12.0
 python-multipart==0.0.9
 
 # Database
-sqlalchemy[asyncio]==2.0.29
-asyncpg>=0.29.0
-alembic==1.13.1
+sqlalchemy[asyncio]>=2.0.35
+asyncpg>=0.31.0
+alembic>=1.14.0
 
 # Cache / Queue
 redis==5.0.3
@@ -14,17 +14,20 @@ celery==5.3.6
 celery[redis]==5.3.6
 
 # AI / LangGraph
-anthropic>=0.40.0
-langgraph==0.1.19
-langchain-core==0.2.43
+anthropic==0.40.0
+langgraph==0.2.20
+langchain-core==0.3.10
+langchain-groq==0.2.0
+langchain-google-genai==2.0.1
 
 # Free LLM Providers
-groq>=0.11.0
-google-generativeai>=0.8.0
+groq==0.11.0
+google-generativeai==0.8.2
 
 # Data
 pandas==2.2.2
 numpy==1.26.4
+python-dateutil>=2.9.0   # used by get_category_trends; transitively installed via pandas
 # scikit-learn removed — not used in codebase
 
 # Email

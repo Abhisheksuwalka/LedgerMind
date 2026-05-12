@@ -14,3 +14,15 @@ venv/
 uploads/
 */.venv/*
 */venv/*
+
+# IDEs
+.vscode/
+.idea/
+
+# Project specific
+scratch/
+data/
+.kiro/
+
+# Celery
+celerybeat-schedule*

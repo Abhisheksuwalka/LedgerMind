@@ -1,10 +1,14 @@
 """
-LangGraph state machine — orchestrates all 10 agents.
+LangGraph state machine — orchestrates all agents.
 Each node receives and mutates the shared FinAgentState TypedDict.
+
+Phase 5 changes:
+  - Replaced fixed parallel analysis agents with a single dynamic ReAct Analysis Agent.
 """
 
 import logging
 import operator
+import time
 from typing import Annotated, Any, Optional
 from uuid import UUID
 
@@ -21,13 +25,11 @@ class FinAgentState(TypedDict, total=False):
     triggered_by: str
     file_content: bytes
     file_type: str
+    business_id: str
 
     # agent outputs
     ingestion_result: dict
-    pnl_result: dict
-    forecast_result: dict
-    anomaly_result: dict
-    reconciliation_result: dict
+    analysis_findings: list[str]
     report_result: dict
 
     # control (using Annotated to merge parallel updates)
@@ -37,139 +39,177 @@ class FinAgentState(TypedDict, total=False):
     _ws_manager: Any
 
 
-# ── Node implementations (thin wrappers — real logic lives in agents/) ────────
+# ── Audit helper ──────────────────────────────────────────────────────────────
 
-def make_orchestrator_node():
-    from agents.orchestrator import initialize
+async def _audit(
+    db_session_factory,
+    run_id: Optional[str],
+    agent_name: str,
+    action: str,
+    status: str,
+    duration_ms: int,
+    tokens_used: int = 0,
+    llm_provider: Optional[str] = None,
+    output_data: Optional[dict] = None,
+    error: Optional[str] = None,
+):
+    """Fire-and-forget audit log — errors are swallowed so they never crash a node."""
+    try:
+        from agents.audit import log_agent_action
+        async with db_session_factory() as db:
+            await log_agent_action(
+                run_id=run_id,
+                agent_name=agent_name,
+                action=action,
+                input_data=None,
+                output_data=output_data,
+                llm_provider=llm_provider,
+                tokens_used=tokens_used,
+                duration_ms=duration_ms,
+                status=status,
+                error=error,
+                db=db,
+            )
+    except Exception as exc:
+        logger.warning("[Audit] Failed to write audit entry for %s: %s", agent_name, exc)
 
-    async def orchestrator(state: FinAgentState) -> FinAgentState:
-        return await initialize(state)
 
-    return orchestrator
-
+# ── Node implementations ──────────────────────────────────────────────────────
 
 def make_ingestion_node(db_session_factory, run_id_getter):
     from agents.data_ingestion import ingest
     from agents.dashboard_agent import push_agent_event
+    from services.baseline_updater import update_baselines_for_run
+    from services.profile_service import get_or_create_profile, update_profile_after_run
 
     async def ingestion(state: FinAgentState) -> dict:
         ws = state.get("_ws_manager")
+        run_id = state.get("run_id")
         await push_agent_event("agent_started", "data_ingestion", {}, ws)
+        t0 = time.monotonic()
         try:
+            # Get or create business profile first
+            async with db_session_factory() as db:
+                profile = await get_or_create_profile(db)
+                business_id = profile.id
+
             async with db_session_factory() as db:
                 result = await ingest(
                     content=state["file_content"],
                     file_type=state.get("file_type", "csv"),
                     run_id=state.get("run_id"),
+                    business_id=business_id,
                     db=db,
                 )
+
+            # ── Phase 2: update business profile + baselines ─────────────────
+            try:
+                async with db_session_factory() as db:
+                    # Update EWMA category baselines
+                    await update_baselines_for_run(
+                        db=db,
+                        business_id=business_id,
+                        transactions=result.get("transactions", []),
+                    )
+
+                    # Update profile stats (PnL not available yet)
+                    await update_profile_after_run(
+                        db=db,
+                        business_id=business_id,
+                        ingestion_result=result,
+                        pnl_result=None,
+                    )
+
+                result["business_id"] = str(business_id)
+            except Exception as bex:
+                logger.warning("[DataIngestion] Baseline/profile update failed (non-fatal): %s", bex)
+                business_id = None
+            # ─────────────────────────────────────────────────────────────────
+
+            duration_ms = int((time.monotonic() - t0) * 1000)
             await push_agent_event("agent_done", "data_ingestion",
                                    {"total_transactions": result.get("total_transactions")}, ws)
-            return {"ingestion_result": result, "completed_agents": ["data_ingestion"]}
+            await _audit(db_session_factory, run_id, "data_ingestion", "ingest",
+                         "success", duration_ms,
+                         output_data={"total_transactions": result.get("total_transactions")})
+            
+            updates = {"ingestion_result": result, "completed_agents": ["data_ingestion"]}
+            if business_id:
+                updates["business_id"] = str(business_id)
+            return updates
         except Exception as exc:
+            duration_ms = int((time.monotonic() - t0) * 1000)
             logger.error("[DataIngestion] failed: %s", exc)
             await push_agent_event("agent_error", "data_ingestion", {"error": str(exc)}, ws)
+            await _audit(db_session_factory, run_id, "data_ingestion", "ingest",
+                         "error", duration_ms, error=str(exc))
             return {"errors": [{"agent": "data_ingestion", "error": str(exc)}], "status": "failed"}
 
     return ingestion
 
 
-def make_pnl_node():
-    from agents.pnl_analyzer import analyze
+def make_analysis_node(db_session_factory):
+    from agents.analysis_agent import run_analysis
     from agents.dashboard_agent import push_agent_event
 
-    async def pnl(state: FinAgentState) -> dict:
+    async def analysis(state: FinAgentState) -> dict:
         ws = state.get("_ws_manager")
-        await push_agent_event("agent_started", "pnl_analyzer", {}, ws)
+        run_id = state.get("run_id")
+        business_id = state.get("business_id")
+        if not business_id:
+            logger.warning("[AnalysisAgent] No business_id, skipping.")
+            return {"analysis_findings": ["No business profile available to analyze."]}
+
+        await push_agent_event("agent_started", "analysis_agent", {}, ws)
+        t0 = time.monotonic()
         try:
-            result = await analyze(state["ingestion_result"], state.get("run_id"))
-            await push_agent_event("agent_done", "pnl_analyzer",
-                                   {"health_score": result.get("health_score"),
-                                    "revenue": result.get("revenue")}, ws)
-            return {"pnl_result": result, "completed_agents": ["pnl_analyzer"]}
+            async with db_session_factory() as db:
+                findings = await run_analysis(db, business_id)
+
+            duration_ms = int((time.monotonic() - t0) * 1000)
+            await push_agent_event("agent_done", "analysis_agent",
+                                   {"findings_count": len(findings)}, ws)
+            await _audit(db_session_factory, run_id, "analysis_agent", "analyze",
+                         "success", duration_ms,
+                         output_data={"findings_count": len(findings)})
+            return {"analysis_findings": findings, "completed_agents": ["analysis_agent"]}
         except Exception as exc:
-            logger.error("[PnLAnalyzer] failed: %s", exc)
-            await push_agent_event("agent_error", "pnl_analyzer", {"error": str(exc)}, ws)
-            return {"errors": [{"agent": "pnl_analyzer", "error": str(exc)}]}
+            duration_ms = int((time.monotonic() - t0) * 1000)
+            logger.error("[AnalysisAgent] failed: %s", exc)
+            await push_agent_event("agent_error", "analysis_agent", {"error": str(exc)}, ws)
+            await _audit(db_session_factory, run_id, "analysis_agent", "analyze",
+                         "error", duration_ms, error=str(exc))
+            return {"errors": [{"agent": "analysis_agent", "error": str(exc)}]}
 
-    return pnl
-
-
-def make_forecasting_node():
-    from agents.forecasting import forecast
-    from agents.dashboard_agent import push_agent_event
-
-    async def forecasting(state: FinAgentState) -> dict:
-        ws = state.get("_ws_manager")
-        await push_agent_event("agent_started", "forecasting", {}, ws)
-        try:
-            result = await forecast(state["ingestion_result"], state.get("run_id"))
-            await push_agent_event("agent_done", "forecasting",
-                                   {"confidence": result.get("confidence_level")}, ws)
-            return {"forecast_result": result, "completed_agents": ["forecasting"]}
-        except Exception as exc:
-            logger.error("[Forecasting] failed: %s", exc)
-            await push_agent_event("agent_error", "forecasting", {"error": str(exc)}, ws)
-            return {"errors": [{"agent": "forecasting", "error": str(exc)}]}
-
-    return forecasting
+    return analysis
 
 
-def make_anomaly_node():
-    from agents.anomaly_detection import detect
-    from agents.dashboard_agent import push_agent_event
-
-    async def anomaly(state: FinAgentState) -> dict:
-        ws = state.get("_ws_manager")
-        await push_agent_event("agent_started", "anomaly_detection", {}, ws)
-        try:
-            result = await detect(state["ingestion_result"], state.get("run_id"))
-            await push_agent_event("agent_done", "anomaly_detection",
-                                   {"total_flagged": result.get("total_flagged", 0)}, ws)
-            return {"anomaly_result": result, "completed_agents": ["anomaly_detection"]}
-        except Exception as exc:
-            logger.error("[AnomalyDetection] failed: %s", exc)
-            await push_agent_event("agent_error", "anomaly_detection", {"error": str(exc)}, ws)
-            return {"errors": [{"agent": "anomaly_detection", "error": str(exc)}]}
-
-    return anomaly
-
-
-def make_reconciliation_node():
-    from agents.reconciliation import reconcile
-    from agents.dashboard_agent import push_agent_event
-
-    async def reconciliation(state: FinAgentState) -> dict:
-        ws = state.get("_ws_manager")
-        await push_agent_event("agent_started", "reconciliation", {}, ws)
-        try:
-            result = await reconcile(state["ingestion_result"], state.get("run_id"))
-            await push_agent_event("agent_done", "reconciliation",
-                                   {"match_rate_pct": result.get("match_rate_pct")}, ws)
-            return {"reconciliation_result": result, "completed_agents": ["reconciliation"]}
-        except Exception as exc:
-            logger.error("[Reconciliation] failed: %s", exc)
-            await push_agent_event("agent_error", "reconciliation", {"error": str(exc)}, ws)
-            return {"errors": [{"agent": "reconciliation", "error": str(exc)}]}
-
-    return reconciliation
-
-
-def make_report_node():
+def make_report_node(db_session_factory):
     from agents.report_generator import generate_report
     from agents.dashboard_agent import push_agent_event
 
     async def report(state: FinAgentState) -> dict:
         ws = state.get("_ws_manager")
+        run_id = state.get("run_id")
         await push_agent_event("agent_started", "report_generator", {}, ws)
+        t0 = time.monotonic()
         try:
             result = await generate_report(state)
+            duration_ms = int((time.monotonic() - t0) * 1000)
             await push_agent_event("agent_done", "report_generator",
                                    {"report_id": result.get("report_id")}, ws)
+            await _audit(db_session_factory, run_id, "report_generator", "generate",
+                         "success", duration_ms,
+                         tokens_used=result.get("tokens_used", 0),
+                         llm_provider=result.get("llm_provider"),
+                         output_data={"report_id": result.get("report_id")})
             return {"report_result": result, "completed_agents": ["report_generator"], "status": "completed"}
         except Exception as exc:
+            duration_ms = int((time.monotonic() - t0) * 1000)
             logger.error("[ReportGenerator] failed: %s", exc)
             await push_agent_event("agent_error", "report_generator", {"error": str(exc)}, ws)
+            await _audit(db_session_factory, run_id, "report_generator", "generate",
+                         "error", duration_ms, error=str(exc))
             return {"errors": [{"agent": "report_generator", "error": str(exc)}], "status": "failed"}
 
     return report
@@ -218,44 +258,28 @@ def make_dashboard_node(ws_manager):
     return dashboard
 
 
-# ── Routing helpers ───────────────────────────────────────────────────────────
-
-def route_after_ingestion(state: FinAgentState) -> list[str]:
-    if state.get("status") == "failed":
-        return ["audit"]
-    return ["pnl_analyzer", "forecasting", "anomaly_detection", "reconciliation"]
-
-
-
-
-
 # ── Graph builder ─────────────────────────────────────────────────────────────
 
 def build_graph(db_session_factory, ws_manager):
     graph = StateGraph(FinAgentState)
 
-    graph.add_node("orchestrator", make_orchestrator_node())
     graph.add_node("data_ingestion", make_ingestion_node(db_session_factory, run_id_getter=None))
-    graph.add_node("pnl_analyzer", make_pnl_node())
-    graph.add_node("forecasting", make_forecasting_node())
-    graph.add_node("anomaly_detection", make_anomaly_node())
-    graph.add_node("reconciliation", make_reconciliation_node())
-    graph.add_node("report_generator", make_report_node())
+    graph.add_node("analysis_agent", make_analysis_node(db_session_factory))
+    graph.add_node("report_generator", make_report_node(db_session_factory))
     graph.add_node("notification", make_notification_node())
     graph.add_node("audit", make_audit_node(db_session_factory))
     graph.add_node("dashboard", make_dashboard_node(ws_manager))
 
-    # Edges
-    graph.set_entry_point("orchestrator")
-    graph.add_edge("orchestrator", "data_ingestion")
+    graph.set_entry_point("data_ingestion")
+    
+    def route_after_ingestion(state: FinAgentState) -> str:
+        if state.get("status") == "failed":
+            return "audit"
+        return "analysis_agent"
+        
     graph.add_conditional_edges("data_ingestion", route_after_ingestion)
 
-    # Fan-in: wait for all parallel analysis agents
-    graph.add_edge(
-        ["pnl_analyzer", "forecasting", "anomaly_detection", "reconciliation"],
-        "report_generator"
-    )
-
+    graph.add_edge("analysis_agent", "report_generator")
     graph.add_edge("report_generator", "notification")
     graph.add_edge("notification", "audit")
     graph.add_edge("audit", "dashboard")

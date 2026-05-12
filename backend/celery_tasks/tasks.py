@@ -33,59 +33,43 @@ celery_app.conf.update(
     enable_utc=True,
     task_track_started=True,
     beat_schedule={
-        "nightly-pipeline": {
-            "task": "celery_tasks.tasks.run_scheduled_pipeline",
+        "nightly-delta": {
+            "task": "celery_tasks.tasks.nightly_delta_check",
             "schedule": crontab(hour=0, minute=0),  # midnight UTC
+        },
+        "weekly-digest": {
+            "task": "celery_tasks.tasks.weekly_digest",
+            "schedule": crontab(day_of_week=1, hour=8, minute=0),  # Monday 8am UTC
         },
     },
 )
 
 
-@celery_app.task(name="celery_tasks.tasks.run_scheduled_pipeline", bind=True, max_retries=2)
-def run_scheduled_pipeline(self):
+@celery_app.task(name="celery_tasks.tasks.nightly_delta_check", bind=True, max_retries=2)
+def nightly_delta_check(self):
     """
-    Nightly scheduled run — triggers the pipeline by POSTing to the internal API.
-
-    This avoids the asyncio.run() + Celery anti-pattern:
-      - Celery workers run in a sync context
-      - The pipeline uses async SQLAlchemy and async LLM clients
-      - asyncio.run() inside Celery creates a new event loop per task, leaking DB connections
-      - Posting to the API instead delegates async execution to the correct event loop
+    Nightly scheduled run — triggers the nightly-delta endpoint to calculate alerts.
     """
-    import io
-    import csv
-    import random
-    from datetime import datetime, timedelta
-
-    # Build a synthetic 90-day dataset
-    rows = [["date", "description", "amount", "category"]]
-    base = datetime.utcnow()
-    random.seed(42)
-
-    for i in range(90):
-        day = (base - timedelta(days=i)).strftime("%Y-%m-%d")
-        rows.append([day, "Monthly SaaS Revenue", round(random.uniform(8000, 12000), 2), "revenue"])
-        rows.append([day, "AWS Infrastructure", round(-random.uniform(800, 1500), 2), "expense"])
-        rows.append([day, "Staff Salaries", -8500.00, "expense"])
-        if i % 7 == 0:
-            rows.append([day, "Consulting Invoice", round(random.uniform(2000, 5000), 2), "revenue"])
-
-    buffer = io.StringIO()
-    csv.writer(buffer).writerows(rows)
-    csv_bytes = buffer.getvalue().encode()
-
     try:
-        response = requests.post(
-            f"{API_BASE}/api/v1/run",
-            files={"file": ("scheduled_run.csv", csv_bytes, "text/csv")},
-            data={"file_type": "csv", "triggered_by": "schedule"},
-            timeout=30,
-        )
+        response = requests.post(f"{API_BASE}/api/v1/internal/nightly-delta", timeout=60)
         response.raise_for_status()
-        run_id = response.json().get("run_id", "unknown")
-        logger.info("[CeleryBeat] Nightly pipeline triggered — run_id=%s", run_id)
-        return {"status": "accepted", "run_id": run_id}
-
+        logger.info("[CeleryBeat] Nightly delta check triggered successfully: %s", response.json())
+        return response.json()
     except requests.RequestException as exc:
-        logger.error("[CeleryBeat] Failed to trigger nightly pipeline: %s", exc)
-        raise self.retry(exc=exc, countdown=300)  # retry after 5 min
+        logger.error("[CeleryBeat] Failed to trigger nightly delta check: %s", exc)
+        raise self.retry(exc=exc, countdown=300)
+
+
+@celery_app.task(name="celery_tasks.tasks.weekly_digest", bind=True, max_retries=2)
+def weekly_digest(self):
+    """
+    Weekly scheduled run — triggers the weekly-digest endpoint to generate LLM summary.
+    """
+    try:
+        response = requests.post(f"{API_BASE}/api/v1/internal/weekly-digest", timeout=120)
+        response.raise_for_status()
+        logger.info("[CeleryBeat] Weekly digest triggered successfully: %s", response.json())
+        return response.json()
+    except requests.RequestException as exc:
+        logger.error("[CeleryBeat] Failed to trigger weekly digest: %s", exc)
+        raise self.retry(exc=exc, countdown=300)

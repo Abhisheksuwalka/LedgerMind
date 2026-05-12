@@ -21,7 +21,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 API_BASE = os.getenv("TEST_API_BASE_URL", "http://localhost:8000")
 SAMPLE_CSV = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    os.path.dirname(os.path.abspath(__file__)),
+    "fixtures",
     "sample_transactions.csv",
 )
 MAX_WAIT_SECONDS = 90

@@ -1,0 +1,32 @@
+date,description,amount,category
+2024-01-01,Monthly SaaS Revenue,12000,revenue
+2024-01-01,AWS Infrastructure,-1200,expense
+2024-01-02,Staff Salaries,-8500,expense
+2024-01-03,Consulting Invoice,4500,revenue
+2024-01-04,Monthly SaaS Revenue,12000,revenue
+2024-01-05,Office Rent,-2500,expense
+2024-01-06,Marketing Campaign,-1800,expense
+2024-01-07,Monthly SaaS Revenue,11800,revenue
+2024-01-08,AWS Infrastructure,-1350,expense
+2024-01-09,Staff Salaries,-8500,expense
+2024-01-10,Consulting Invoice,3200,revenue
+2024-01-11,Monthly SaaS Revenue,12500,revenue
+2024-01-12,Travel Expense,-620,expense
+2024-01-13,Software Subscriptions,-450,expense
+2024-01-14,Monthly SaaS Revenue,12000,revenue
+2024-01-15,AWS Infrastructure,-1100,expense
+2024-01-16,Staff Salaries,-8500,expense
+2024-01-17,Consulting Invoice,5800,revenue
+2024-01-18,Monthly SaaS Revenue,12200,revenue
+2024-01-19,Office Rent,-2500,expense
+2024-01-20,Marketing Campaign,-2200,expense
+2024-01-21,Monthly SaaS Revenue,12000,revenue
+2024-01-22,SUSPICIOUS LARGE PAYMENT,-45000,expense
+2024-01-23,Staff Salaries,-8500,expense
+2024-01-24,Consulting Invoice,2800,revenue
+2024-01-25,Monthly SaaS Revenue,11900,revenue
+2024-01-26,AWS Infrastructure,-1250,expense
+2024-01-27,Software Subscriptions,-450,expense
+2024-01-28,Monthly SaaS Revenue,12000,revenue
+2024-01-29,Staff Salaries,-8500,expense
+2024-01-30,Consulting Invoice,4100,revenue

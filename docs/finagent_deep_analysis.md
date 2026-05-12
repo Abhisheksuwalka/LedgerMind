@@ -4,7 +4,7 @@
 
 ## 1. Current Project Summary
 
-FinAgent-OS is a **batch financial data processing pipeline** wrapped in agentic vocabulary. A user uploads a CSV or JSON file of financial transactions. A LangGraph state machine then runs 10 named "agents" in a fixed sequential chain:
+This is a **batch financial data processing pipeline** wrapped in agentic vocabulary. A user uploads a CSV or JSON file of financial transactions. A LangGraph state machine then runs 10 named "agents" in a fixed sequential chain:
 
 ```
 orchestrator → data_ingestion → pnl_analyzer → forecasting →

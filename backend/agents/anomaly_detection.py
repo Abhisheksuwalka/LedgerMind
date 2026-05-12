@@ -4,6 +4,8 @@ Uses Z-score + IQR to flag statistical outliers, then LLM explains WHY.
 """
 
 import logging
+import time
+from datetime import datetime
 from typing import Optional
 
 import numpy as np
@@ -74,7 +76,6 @@ def _zscore_anomalies(transactions: list[dict], threshold: float = 2.5) -> list[
             try:
                 d1 = tx["date"][:10]
                 d2 = transactions[int(sister_idx)]["date"][:10]
-                from datetime import datetime
                 delta = abs((datetime.fromisoformat(d1) - datetime.fromisoformat(d2)).days)
                 if delta <= 3 and i not in [f["index"] for f in flagged]:
                     flagged.append(

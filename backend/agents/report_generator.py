@@ -1,8 +1,6 @@
 """
-Agent 7 — Report Generator
-Compiles outputs from all analysis agents into a boardroom-ready financial report.
-Uses LLM router with prefer_provider="anthropic" for highest quality,
-but gracefully falls back to Groq/Gemini if Anthropic is not configured.
+Agent 7 — Report Generator (Phase 5 Redesign)
+Compiles findings from the ReAct Analysis Agent into a boardroom-ready financial report.
 """
 
 import json
@@ -15,62 +13,32 @@ from tools.llm_router import run_agent
 
 logger = logging.getLogger("agent.report_generator")
 
-SYSTEM_PROMPT = """You are the CFO-level reporting AI for LedgerMind.
+SYSTEM_PROMPT = """You are the CFO-level reporting AI for CashPilot.
 
-You have received outputs from all analysis agents. Your task is to compile a boardroom-ready financial report.
+You have received findings from the Analysis Agent. Your task is to compile a boardroom-ready financial report.
 
 Write:
 1. Executive Summary (3-4 paragraphs) — plain English, no jargon, suitable for a non-financial executive.
-2. Key Metrics section — a concise table of the 5 most important numbers.
-3. Top 3 Risks identified this period with severity and recommended action.
-4. Top 3 Opportunities for cost reduction or revenue growth.
-5. Recommended Next Actions (numbered list, 5 items max).
+2. Key Insights section — based directly on the provided findings.
+3. Top Risks/Anomalies (if any are mentioned in the findings).
+4. Recommended Next Actions.
 
 Format your entire response as a Markdown document starting with:
-# LedgerMind — Financial Report"""
+# CashPilot — Financial Report"""
 
 
 async def generate_report(state: dict) -> dict:
     run_id = state.get("run_id")
     logger.info("[ReportGenerator] Compiling report for run_id=%s", run_id)
 
-    pnl = state.get("pnl_result", {})
-    forecast = state.get("forecast_result", {})
-    anomaly = state.get("anomaly_result", {})
-    reconciliation = state.get("reconciliation_result", {})
+    findings = state.get("analysis_findings", [])
+    if not findings:
+        findings = ["No specific findings were generated for this period."]
 
     context = {
         "run_id": run_id,
         "report_date": datetime.now(timezone.utc).isoformat(),
-        "pnl_summary": {
-            "revenue": pnl.get("revenue"),
-            "expenses": pnl.get("expenses"),
-            "gross_profit": pnl.get("gross_profit"),
-            "net_profit": pnl.get("net_profit"),
-            "gross_margin_pct": pnl.get("gross_margin_pct"),
-            "health_score": pnl.get("health_score"),
-            "key_insights": pnl.get("key_insights", []),
-            "alerts": pnl.get("alerts", []),
-        },
-        "forecast_summary": {
-            "30_day_projection": forecast.get("projections", {}).get(30),
-            "60_day_projection": forecast.get("projections", {}).get(60),
-            "90_day_projection": forecast.get("projections", {}).get(90),
-            "confidence": forecast.get("confidence_level"),
-            "risk_factors": forecast.get("risk_factors", []),
-            "narrative": forecast.get("narrative_summary", ""),
-        },
-        "anomaly_summary": {
-            "total_flagged": anomaly.get("total_flagged", 0),
-            "critical_count": anomaly.get("critical_count", 0),
-            "top_anomalies": (anomaly.get("anomalies") or [])[:3],
-        },
-        "reconciliation_summary": {
-            "match_rate_pct": reconciliation.get("match_rate_pct"),
-            "discrepancy_count": reconciliation.get("discrepancy_count", 0),
-            "risk_level": reconciliation.get("risk_level"),
-            "action_plan": reconciliation.get("action_plan", []),
-        },
+        "analysis_findings": findings,
     }
 
     # Prefer Anthropic for report quality — falls back to Groq/Gemini automatically
@@ -97,10 +65,12 @@ async def generate_report(state: dict) -> dict:
         async with AsyncSessionLocal() as db:
             report_row = FinancialReport(
                 run_id=uuid.UUID(run_id) if run_id else None,
-                pnl_data=pnl,
-                forecast_data=forecast,
-                anomalies=anomaly.get("anomalies", []),
-                reconciliation=reconciliation,
+                # We store the structured findings in one of the existing JSON columns
+                # so we don't have to run an Alembic migration right now.
+                pnl_data={"findings": findings},
+                forecast_data={},
+                anomalies=[],
+                reconciliation={},
                 markdown_report=markdown_report,
                 executive_summary=markdown_report[:2000],
             )
@@ -114,6 +84,7 @@ async def generate_report(state: dict) -> dict:
         "report_id": report_id,
         "markdown_report": markdown_report,
         "executive_summary": markdown_report[:2000],
+        "findings": findings,
         "tokens_used": llm_result["tokens_used"],
         "llm_provider": provider_used,
     }

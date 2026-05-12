@@ -157,7 +157,8 @@ def _build_provider_chain(prefer_provider: Optional[str] = None) -> list:
     Build ordered list of available providers based on env vars.
     If prefer_provider is set and available, it is moved to the front.
     """
-    available = [P() for P in _ALL_PROVIDERS if P().is_available()]
+    instances = [P() for P in _ALL_PROVIDERS]
+    available = [p for p in instances if p.is_available()]
 
     if not available:
         raise RuntimeError(
@@ -212,7 +213,7 @@ async def run_agent(
             "duration_ms": int,     # Wall time of the LLM call
         }
     """
-    user_content = f"Financial context:\n{json.dumps(context, indent=2, default=str)}"
+    user_content = f"Financial context:\n{json.dumps(context, default=str)}"
     key = _cache_key(system_prompt, user_content)
 
     # Cache check
