@@ -22,7 +22,8 @@ uploads/
 # Project specific
 scratch/
 data/
-.kiro/
+
+docs/
 
 # Celery
 celerybeat-schedule*
