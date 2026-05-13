@@ -16,6 +16,7 @@ from sqlalchemy import (
     Text,
     JSON,
     Enum as SAEnum,
+    Index,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -186,6 +187,10 @@ class CategoryBaseline(Base):
 class Alert(Base):
     """Persistent alert record — created by Watch Engine (Phase 6) and pipeline nodes."""
     __tablename__ = "alerts"
+    __table_args__ = (
+        Index("ix_alerts_business_type_created", "business_id", "alert_type", "created_at"),
+        Index("ix_alerts_business_dedupe_key", "business_id", "dedupe_key", unique=True),
+    )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     business_id = Column(UUID(as_uuid=True), ForeignKey("business_profiles.id"), nullable=False)
@@ -194,6 +199,7 @@ class Alert(Base):
     severity = Column(String(16))     # low | medium | high | critical
     title = Column(String(256))
     message = Column(Text)
+    dedupe_key = Column(String(64), nullable=True)
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 

@@ -14,6 +14,35 @@
 const BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
 const API_KEY = import.meta.env.VITE_API_KEY || '';
 
+export class ApiError extends Error {
+  status: number;
+  code?: string;
+
+  constructor(message: string, status: number, code?: string) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.code = code;
+  }
+}
+
+async function parseApiError(res: Response): Promise<ApiError> {
+  let message = `HTTP ${res.status}`;
+  let code: string | undefined;
+  try {
+    const body = await res.json();
+    if (body?.error?.message) {
+      message = body.error.message;
+      code = body.error.code;
+    } else if (body?.detail) {
+      message = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail);
+    }
+  } catch {
+    /* ignore parse error */
+  }
+  return new ApiError(message, res.status, code);
+}
+
 /**
  * Typed fetch wrapper for JSON endpoints.
  */
@@ -32,14 +61,8 @@ export async function apiFetch<T = unknown>(
   });
 
   if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const body = await res.json();
-      detail = body?.detail ?? detail;
-    } catch {
-      /* ignore parse error */
-    }
-    throw new Error(`API ${path}: ${detail}`);
+    const err = await parseApiError(res);
+    throw new ApiError(`API ${path}: ${err.message}`, err.status, err.code);
   }
 
   return res.json() as Promise<T>;
@@ -88,7 +111,11 @@ export function apiUpload<T = unknown>(
         let detail = `HTTP ${xhr.status}`;
         try {
           const body = JSON.parse(xhr.responseText);
-          detail = body?.detail ?? detail;
+          if (body?.error?.message) {
+            detail = body.error.message;
+          } else {
+            detail = body?.detail ?? detail;
+          }
         } catch {
           /* ignore */
         }

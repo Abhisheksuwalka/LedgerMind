@@ -386,8 +386,8 @@ Interactive OpenAPI is served by FastAPI at **`/docs`** when the server runs.
 | `GET`    | `/api/v1/audit/{run_id}`            | Open                         | Audit entries                                                                 |
 | `GET`    | `/api/v1/settings`                  | Open                         | Provider flags + models + tax rate                                            |
 | `DELETE` | `/api/v1/data/reset`                | Key if set                   | Wipes data + Redis `chat:*`                                                   |
-| `POST`   | `/api/v1/internal/nightly-delta`    | **None in code**             | Intended for Celery                                                           |
-| `POST`   | `/api/v1/internal/weekly-digest`    | **None in code**             | Intended for Celery                                                           |
+| `POST`   | `/api/v1/internal/nightly-delta`    | `X-Internal-Secret`          | Intended for Celery/service-to-service traffic only                           |
+| `POST`   | `/api/v1/internal/weekly-digest`    | `X-Internal-Secret`          | Intended for Celery/service-to-service traffic only                           |
 | `GET`    | `/health`                           | Open                         | `{"status":"ok","service":"LedgerMind"}`                                      |
 | `WS`     | `/ws`                               | Open                         | Broadcast-only from server; client messages ignored except keep-alive receive |
 
@@ -412,7 +412,7 @@ Interactive OpenAPI is served by FastAPI at **`/docs`** when the server runs.
 
 Authoritative templates:
 
-- **Root**: [`.env.example`](.env.example) — database, Redis, LLM keys, `API_KEY`, SendGrid, **note**: labels file **LedgerMind**.
+- **Root**: [`.env.example`](.env.example) — database, Redis, LLM keys, `API_KEY`, `INTERNAL_API_SECRET`, `ENVIRONMENT`, SendGrid.
 - **Frontend**: [`frontend/.env.example`](frontend/.env.example) — `VITE_API_BASE_URL`, `VITE_WS_URL`, `VITE_API_KEY`.
 
 Backend reads **`../.env`** relative to `backend/main.py` ([`main.py`](backend/main.py) lines 6–7).
@@ -480,7 +480,12 @@ Defines:
 
 Env vars listed include **Anthropic, SendGrid, DATABASE_URL, REDIS_URL**, etc.; **`GROQ_API_KEY` / `GEMINI_API_KEY` are not enumerated** in `render.yaml`—they must be added manually if needed.
 
-**Gap:** Celery tasks default **`INTERNAL_API_URL=http://backend:8000`**; for Render you must set this to your **public or internal web URL** so workers reach the FastAPI process.
+Set these in deployed environments:
+
+- `ENVIRONMENT=production` to enforce fail-closed auth behavior.
+- `API_KEY` for protected public API routes.
+- `INTERNAL_API_SECRET` on both backend and Celery workers (must match).
+- `INTERNAL_API_URL` so Celery workers can reach the backend process.
 
 ---
 
@@ -493,7 +498,7 @@ Env vars listed include **Anthropic, SendGrid, DATABASE_URL, REDIS_URL**, etc.; 
 | **Notification agent**                   | [`send_notifications`](backend/agents/notification.py) emails on `report_result` when `status == "completed"` (report email can fire). **`anomaly_result` is never populated** by the current graph → **critical-anomaly email branch effectively unused**.                                                                                                                                                                                                            |
 | **Stripe / Plaid integrations**          | Settings UI toggles **local React state only** ([`Settings.tsx`](frontend/src/features/settings/Settings.tsx)); **no OAuth/API**.                                                                                                                                                                                                                                                                                                                                      |
 | **Reports page**                         | Not wired in [`App.tsx`](frontend/src/App.tsx) router.                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Internal cron endpoints**              | **`/internal/nightly-delta`** and **`/weekly-digest`** have **no API key** dependency → security risk if exposed publicly.                                                                                                                                                                                                                                                                                                                                             |
+| **Internal cron endpoints**              | Secured with **`X-Internal-Secret`**; production now fails closed when `INTERNAL_API_SECRET` is missing.                                                                                                                                                                                                                                                                                                                                                               |
 | **Legacy agent modules**                 | `pnl_analyzer.py`, `forecasting.py`, `anomaly_detection.py`, `reconciliation.py` exist but are **not imported by `workflow.py`** (only tests reference some).                                                                                                                                                                                                                                                                                                          |
 | **Chat “streaming”**                     | UI flag **`isStreaming`** is loading state only; **no token streaming** from API.                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Celery module docstring**              | [`tasks.py`](backend/celery_tasks/tasks.py) header still describes posting to **`/run`** in prose; actual tasks call **`/internal/*`** (stale comment vs code).                                                                                                                                                                                                                                                                                                        |
@@ -502,7 +507,7 @@ Env vars listed include **Anthropic, SendGrid, DATABASE_URL, REDIS_URL**, etc.; 
 
 ## Future improvements
 
-1. **Secure internal endpoints** (shared secret header or network ACL) for **`/api/v1/internal/*`**.
+1. **Extend endpoint coverage** for stricter auth if internal routes increase (and keep shared secret rotation policy).
 2. **Align `FinAgentState` and `push_update`** so WebSocket dashboard metrics reflect actual pipeline outputs—or simplify `_serialize_state_snapshot` to fields that exist.
 3. **Register `/reports`** route or remove orphan page; optionally reuse `apiFetch` for consistency.
 4. **Integration backends** for Stripe/Plaid instead of placeholder toggles.
@@ -524,4 +529,4 @@ Env vars listed include **Anthropic, SendGrid, DATABASE_URL, REDIS_URL**, etc.; 
 
 ## Conclusion
 
-This repository is a **single-tenant financial agent MVP**: upload transactions, run a **LangGraph** pipeline (ingest → ReAct analysis → Markdown report), browse **snapshots and alerts**, and chat with **tool-grounded** responses backed by **PostgreSQL** and **Redis**. **Internal endpoint auth**, **dashboard/WebSocket payload alignment**, **integration placeholders**, and **production Vite env** are the main follow-ups—see [limitations](#current-limitations--incomplete-areas) and [deployment](#deployment).
+This repository is a **single-tenant financial agent MVP**: upload transactions, run a **LangGraph** pipeline (ingest → ReAct analysis → Markdown report), browse **snapshots and alerts**, and chat with **tool-grounded** responses backed by **PostgreSQL** and **Redis**. Dashboard/WebSocket payload alignment, deeper integration backends, and deployment hardening remain the main follow-ups—see [limitations](#current-limitations--incomplete-areas) and [deployment](#deployment).

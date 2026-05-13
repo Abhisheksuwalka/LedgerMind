@@ -2,8 +2,8 @@ import { ProfileForm } from './components/ProfileForm';
 import { BusinessProfileForm } from './components/BusinessProfileForm';
 import { IntegrationCard } from './components/IntegrationCard';
 import { NotificationToggles } from './components/NotificationToggles';
-import { useState, useEffect } from 'react';
-import { apiFetch, resetData } from '@/lib/api';
+import { useState, useEffect, useCallback } from 'react';
+import { ApiError, apiFetch, resetData } from '@/lib/api';
 import { CheckCircle, XCircle, Loader2, AlertTriangle, Trash2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -25,16 +25,32 @@ export default function Settings() {
   const [plaidConnected, setPlaidConnected] = useState(false);
   const [providerStatus, setProviderStatus] = useState<ProviderStatus | null>(null);
   const [providerLoading, setProviderLoading] = useState(true);
+  const [providerError, setProviderError] = useState<string | null>(null);
   const [isConfirmingReset, setIsConfirmingReset] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    apiFetch<ProviderStatus>('/settings')
-      .then(setProviderStatus)
-      .catch(() => {/* backend offline — silent */})
-      .finally(() => setProviderLoading(false));
+  const loadProviderStatus = useCallback(async () => {
+    setProviderLoading(true);
+    setProviderError(null);
+    try {
+      const status = await apiFetch<ProviderStatus>('/settings');
+      setProviderStatus(status);
+    } catch (err) {
+      const msg =
+        err instanceof ApiError && (err.status === 401 || err.status === 403)
+          ? 'Authentication failed while loading provider settings. Check API key and retry.'
+          : 'Could not load provider settings. Verify backend status and retry.';
+      setProviderError(msg);
+      setProviderStatus(null);
+    } finally {
+      setProviderLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadProviderStatus();
+  }, [loadProviderStatus]);
 
   return (
     <main className="p-4 md:p-8 space-y-8 max-w-[1000px] mx-auto w-full pb-20">
@@ -81,6 +97,17 @@ export default function Settings() {
                 );
               })}
               <p className="text-xs text-tertiary pt-1">Tax rate: {providerStatus.tax_rate_pct}% · Add API keys to <code className="text-primary-400">.env</code> and restart the backend.</p>
+            </div>
+          )}
+          {!providerLoading && providerError && (
+            <div className="rounded-lg border border-amber-700/40 bg-amber-900/10 p-3 text-sm">
+              <p className="text-amber-300">{providerError}</p>
+              <button
+                className="mt-2 rounded-md border border-border-default px-3 py-1.5 text-xs font-medium text-primary hover:bg-bg-hover"
+                onClick={() => void loadProviderStatus()}
+              >
+                Retry
+              </button>
             </div>
           )}
         </section>

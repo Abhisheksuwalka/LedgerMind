@@ -4,6 +4,7 @@ POST /run returns 202 immediately; pipeline runs as a background asyncio task.
 """
 
 import asyncio
+import hashlib
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
@@ -11,10 +12,11 @@ from typing import Optional
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Request, UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
-from db.models import AuditLog, FinancialReport, PipelineRun, RunStatus, get_db, AsyncSessionLocal
+from db.models import Alert, AuditLog, FinancialReport, PipelineRun, RunStatus, get_db, AsyncSessionLocal
 from graph.workflow import FinAgentState, build_graph
-from api.auth import verify_api_key
+from api.auth import verify_api_key, verify_internal_secret
 
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -22,6 +24,52 @@ from slowapi.util import get_remote_address
 limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter()
+
+
+def _alert_dedupe_key(
+    *,
+    business_id,
+    alert_type: str,
+    title: str,
+    message: str,
+    bucket: str,
+) -> str:
+    raw = f"{business_id}|{alert_type}|{title.strip()}|{message.strip()}|{bucket}"
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+async def _create_alert_if_new(
+    db: AsyncSession,
+    *,
+    business_id,
+    alert_type: str,
+    severity: str,
+    title: str,
+    message: str,
+    dedupe_bucket: str,
+):
+    dedupe_key = _alert_dedupe_key(
+        business_id=business_id,
+        alert_type=alert_type,
+        title=title,
+        message=message,
+        bucket=dedupe_bucket,
+    )
+    try:
+        async with db.begin_nested():
+            alert = Alert(
+                business_id=business_id,
+                alert_type=alert_type,
+                severity=severity,
+                title=title,
+                message=message,
+                dedupe_key=dedupe_key,
+            )
+            db.add(alert)
+            await db.flush()
+            return alert
+    except IntegrityError:
+        return None
 
 
 # ── Background pipeline executor ──────────────────────────────────────────────
@@ -105,7 +153,6 @@ async def trigger_pipeline(
     Deduplication: if the same file (SHA-256 hash) has already been successfully
     processed, returns the existing run_id instead of re-running the pipeline.
     """
-    import hashlib
     content = await file.read()
     if len(content) == 0:
         raise HTTPException(status_code=400, detail="Uploaded file is empty")
@@ -447,8 +494,6 @@ async def clear_chat_session(session_id: str):
 
 # ── Watch Engine (Phase 6) ────────────────────────────────────────────────────
 
-from db.models import Alert
-
 @router.get("/alerts")
 async def list_alerts(db: AsyncSession = Depends(get_db)):
     """Get all alerts, newest first."""
@@ -761,7 +806,7 @@ async def get_history(db: AsyncSession = Depends(get_db)):
     ]
 
 
-@router.post("/internal/nightly-delta")
+@router.post("/internal/nightly-delta", dependencies=[Depends(verify_internal_secret)])
 async def nightly_delta_endpoint(request: Request, db: AsyncSession = Depends(get_db)):
     """
     Internal endpoint called by Celery nightly_delta_check task.
@@ -780,32 +825,38 @@ async def nightly_delta_endpoint(request: Request, db: AsyncSession = Depends(ge
     # 1. Compute runway
     runway_res = await compute_runway(db, business_id)
     warning = runway_res.get("warning")
+    today_bucket = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
     if warning:
         runway_months = runway_res.get("months_of_runway")
-        alert = Alert(
+        alert = await _create_alert_if_new(
+            db,
             business_id=business_id,
             alert_type="runway_warning",
             severity="critical" if (runway_months is not None and runway_months < 3) else "high",
             title="Low Runway Alert",
             message=warning,
+            dedupe_bucket=today_bucket,
         )
-        db.add(alert)
-        alerts_created.append(alert)
+        if alert:
+            alerts_created.append(alert)
 
     # 2. Check each category against EWMA baseline via find_anomalies
     anomalies_res = await find_anomalies(db, business_id, period="last_30d", use_baselines=True, z_threshold=2.0)
     if anomalies_res.get("total_flagged", 0) > 0:
         for anomaly in anomalies_res.get("anomalies", []):
             if anomaly.get("z_score", 0) > 2.5: # Only alert for significant anomalies
-                alert = Alert(
+                alert = await _create_alert_if_new(
+                    db,
                     business_id=business_id,
                     alert_type="category_spike",
                     severity="high" if anomaly.get("z_score", 0) > 3.0 else "medium",
                     title=f"Spending Spike: {anomaly.get('category', 'unknown').title()}",
                     message=f"Anomalous transaction of {anomaly.get('amount')} detected in {anomaly.get('category', 'unknown')} on {anomaly.get('date')}.",
+                    dedupe_bucket=today_bucket,
                 )
-                db.add(alert)
-                alerts_created.append(alert)
+                if alert:
+                    alerts_created.append(alert)
                 # Cap the number of individual alerts to avoid spam
                 if len(alerts_created) > 5:
                     break
@@ -814,15 +865,17 @@ async def nightly_delta_endpoint(request: Request, db: AsyncSession = Depends(ge
     # (A simple check for this month vs last month)
     margin_res = await compare_periods(db, business_id, period_a="this_month", period_b="last_month", metric="margin_pct")
     if margin_res.get("change_abs") is not None and margin_res.get("change_abs") < -5.0:
-        alert = Alert(
+        alert = await _create_alert_if_new(
+            db,
             business_id=business_id,
             alert_type="margin_trend",
             severity="high",
             title="Margin Decline Alert",
             message=f"Gross margin has decreased by {abs(margin_res['change_abs']):.1f}% compared to last month.",
+            dedupe_bucket=today_bucket,
         )
-        db.add(alert)
-        alerts_created.append(alert)
+        if alert:
+            alerts_created.append(alert)
 
     if alerts_created:
         await db.commit()
@@ -842,7 +895,7 @@ async def nightly_delta_endpoint(request: Request, db: AsyncSession = Depends(ge
     return {"status": "success", "alerts_generated": len(alerts_created)}
 
 
-@router.post("/internal/weekly-digest")
+@router.post("/internal/weekly-digest", dependencies=[Depends(verify_internal_secret)])
 async def weekly_digest_endpoint(request: Request, db: AsyncSession = Depends(get_db)):
     """
     Internal endpoint called by Celery weekly_digest task.
@@ -891,14 +944,18 @@ async def weekly_digest_endpoint(request: Request, db: AsyncSession = Depends(ge
         log.error("Failed to generate weekly digest with LLM: %s", e)
         summary = f"Weekly summary could not be generated. Data: {rev_comp.get('interpretation')} {exp_comp.get('interpretation')}"
 
-    alert = Alert(
+    week_bucket = f"{this_week_start.isoformat()}:{(this_week_start + timedelta(days=6)).isoformat()}"
+    alert = await _create_alert_if_new(
+        db,
         business_id=business_id,
         alert_type="digest",
         severity="low",
         title="Weekly Financial Digest",
         message=summary,
+        dedupe_bucket=week_bucket,
     )
-    db.add(alert)
+    if not alert:
+        return {"status": "success", "alert_id": None, "deduped": True}
     await db.commit()
 
     if ws_manager:
